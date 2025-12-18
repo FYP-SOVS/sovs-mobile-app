@@ -16,9 +16,10 @@ export default function IdentityVerificationScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isVerifying, setIsVerifying] = useState(false);
   const [facing, setFacing] = useState<CameraType>('front');
-  const [captureStep, setCaptureStep] = useState<'selfie' | 'id' | 'verifying'>('selfie');
+  const [captureStep, setCaptureStep] = useState<'selfie' | 'id_front' | 'id_back' | 'verifying'>('selfie');
   const [selfieUri, setSelfieUri] = useState<string | null>(null);
-  const [idUri, setIdUri] = useState<string | null>(null);
+  const [idFrontUri, setIdFrontUri] = useState<string | null>(null);
+  const [idBackUri, setIdBackUri] = useState<string | null>(null);
   const cameraRef = useRef<any>(null);
 
   if (!permission) {
@@ -59,26 +60,32 @@ export default function IdentityVerificationScreen() {
       if (captureStep === 'selfie') {
         const selfieUriValue = photo.uri;
         setSelfieUri(selfieUriValue);
-        setCaptureStep('id');
-        setFacing('back');
-      } else if (captureStep === 'id') {
-        const idUriValue = photo.uri;
-        setIdUri(idUriValue);
+        setCaptureStep('id_front');
+        setFacing('back'); // Switch to back camera for ID front
+      } else if (captureStep === 'id_front') {
+        const idFrontUriValue = photo.uri;
+        setIdFrontUri(idFrontUriValue);
+        setCaptureStep('id_back');
+        // Keep back camera for ID back
+      } else if (captureStep === 'id_back') {
+        const idBackUriValue = photo.uri;
+        setIdBackUri(idBackUriValue);
         setCaptureStep('verifying');
         
-        // Get the selfie URI from state, but use the current photo URI for ID
-        // We need to wait a moment for state to update, then verify
+        // Wait a moment for state to update, then verify
         setTimeout(async () => {
           const currentSelfie = selfieUri;
-          const currentId = idUriValue;
+          const currentIdFront = idFrontUri;
+          const currentIdBack = idBackUriValue;
           
-          if (!currentSelfie || !currentId) {
-            console.error('Missing images:', { currentSelfie, currentId });
+          if (!currentSelfie || !currentIdFront || !currentIdBack) {
+            console.error('Missing images:', { currentSelfie, currentIdFront, currentIdBack });
             setIsVerifying(false);
             Alert.alert(t('common.error'), 'Missing images. Please try again.');
             setCaptureStep('selfie');
             setSelfieUri(null);
-            setIdUri(null);
+            setIdFrontUri(null);
+            setIdBackUri(null);
             setFacing('front');
             return;
           }
@@ -87,8 +94,8 @@ export default function IdentityVerificationScreen() {
 
           try {
             const result = await verifyIdentityWithDidit({
-              frontImage: currentId,
-              backImage: currentId, // Use same image for back if needed
+              frontImage: currentIdFront,
+              backImage: currentIdBack,
               performDocumentLiveness: false,
             });
 
@@ -106,15 +113,16 @@ export default function IdentityVerificationScreen() {
                 t('registration.verificationFailed'),
                 errorMessage,
                 [
-                  {
-                    text: t('registration.tryAgain'),
-                    onPress: () => {
-                      setCaptureStep('selfie');
-                      setSelfieUri(null);
-                      setIdUri(null);
-                      setFacing('front');
+                    {
+                      text: t('registration.tryAgain'),
+                      onPress: () => {
+                        setCaptureStep('selfie');
+                        setSelfieUri(null);
+                        setIdFrontUri(null);
+                        setIdBackUri(null);
+                        setFacing('front');
+                      },
                     },
-                  },
                 ]
               );
               return;
@@ -126,15 +134,16 @@ export default function IdentityVerificationScreen() {
                 t('registration.verificationFailed'),
                 'Required information (name, date of birth, or document number) could not be extracted from the document. Please ensure the image is clear and try again.',
                 [
-                  {
-                    text: t('registration.tryAgain'),
-                    onPress: () => {
-                      setCaptureStep('selfie');
-                      setSelfieUri(null);
-                      setIdUri(null);
-                      setFacing('front');
+                    {
+                      text: t('registration.tryAgain'),
+                      onPress: () => {
+                        setCaptureStep('selfie');
+                        setSelfieUri(null);
+                        setIdFrontUri(null);
+                        setIdBackUri(null);
+                        setFacing('front');
+                      },
                     },
-                  },
                 ]
               );
               return;
@@ -146,15 +155,16 @@ export default function IdentityVerificationScreen() {
                 t('registration.verificationFailed'),
                 'Document verification was declined. Please ensure your ID is valid, not expired, and the image is clear.',
                 [
-                  {
-                    text: t('registration.tryAgain'),
-                    onPress: () => {
-                      setCaptureStep('selfie');
-                      setSelfieUri(null);
-                      setIdUri(null);
-                      setFacing('front');
+                    {
+                      text: t('registration.tryAgain'),
+                      onPress: () => {
+                        setCaptureStep('selfie');
+                        setSelfieUri(null);
+                        setIdFrontUri(null);
+                        setIdBackUri(null);
+                        setFacing('front');
+                      },
                     },
-                  },
                 ]
               );
               return;
@@ -166,15 +176,16 @@ export default function IdentityVerificationScreen() {
                 t('registration.verificationFailed'),
                 'Some critical information could not be detected from the document. Please ensure the image is clear and try again.',
                 [
-                  {
-                    text: t('registration.tryAgain'),
-                    onPress: () => {
-                      setCaptureStep('selfie');
-                      setSelfieUri(null);
-                      setIdUri(null);
-                      setFacing('front');
+                    {
+                      text: t('registration.tryAgain'),
+                      onPress: () => {
+                        setCaptureStep('selfie');
+                        setSelfieUri(null);
+                        setIdFrontUri(null);
+                        setIdBackUri(null);
+                        setFacing('front');
+                      },
                     },
-                  },
                 ]
               );
               return;
@@ -191,15 +202,16 @@ export default function IdentityVerificationScreen() {
                 t('registration.verificationFailed'),
                 'Could not extract name or date of birth from the document. Please try again with a clearer image.',
                 [
-                  {
-                    text: t('registration.tryAgain'),
-                    onPress: () => {
-                      setCaptureStep('selfie');
-                      setSelfieUri(null);
-                      setIdUri(null);
-                      setFacing('front');
+                    {
+                      text: t('registration.tryAgain'),
+                      onPress: () => {
+                        setCaptureStep('selfie');
+                        setSelfieUri(null);
+                        setIdFrontUri(null);
+                        setIdBackUri(null);
+                        setFacing('front');
+                      },
                     },
-                  },
                 ]
               );
               return;
@@ -223,7 +235,8 @@ export default function IdentityVerificationScreen() {
             Alert.alert(t('common.error'), error.message || t('common.error'));
             setCaptureStep('selfie');
             setSelfieUri(null);
-            setIdUri(null);
+            setIdFrontUri(null);
+            setIdBackUri(null);
             setFacing('front');
           }
         }, 100);
@@ -249,8 +262,10 @@ export default function IdentityVerificationScreen() {
         <Text style={styles.subtitle}>
           {captureStep === 'selfie'
             ? t('registration.takeSelfie')
-            : captureStep === 'id'
-            ? t('registration.takeIdPhoto')
+            : captureStep === 'id_front'
+            ? t('registration.takeIdFront') || 'Take a photo of the front of your ID'
+            : captureStep === 'id_back'
+            ? t('registration.takeIdBack') || 'Take a photo of the back of your ID'
             : t('registration.verifying')}
         </Text>
       </View>
@@ -282,10 +297,14 @@ export default function IdentityVerificationScreen() {
                   <Text style={styles.guideText}>{t('registration.takeSelfie')}</Text>
                 </View>
               )}
-              {captureStep === 'id' && (
+              {(captureStep === 'id_front' || captureStep === 'id_back') && (
                 <View style={styles.idGuide}>
                   <View style={styles.guideRect} />
-                  <Text style={styles.guideText}>{t('registration.takeIdPhoto')}</Text>
+                  <Text style={styles.guideText}>
+                    {captureStep === 'id_front' 
+                      ? (t('registration.takeIdFront') || 'Front of ID')
+                      : (t('registration.takeIdBack') || 'Back of ID')}
+                  </Text>
                 </View>
               )}
             </View>
@@ -299,7 +318,11 @@ export default function IdentityVerificationScreen() {
             >
               <Camera size={24} color="#fff" strokeWidth={2.5} />
               <Text style={styles.captureButtonText}>
-                {captureStep === 'selfie' ? t('registration.captureSelfie') : t('registration.captureId')}
+                {captureStep === 'selfie' 
+                  ? t('registration.captureSelfie') 
+                  : captureStep === 'id_front'
+                  ? (t('registration.captureIdFront') || 'Capture Front')
+                  : (t('registration.captureIdBack') || 'Capture Back')}
               </Text>
             </Pressable>
           </View>
