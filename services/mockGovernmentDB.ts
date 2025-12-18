@@ -13,30 +13,22 @@ export interface GovernmentData {
 
 /**
  * Mock government database
- * In production, this would query actual government API
+ * Uses actual data from the government_db table
  */
 const mockDatabase: Record<string, GovernmentData> = {
-  // Pre-populated mock records for testing
-  'NID1234567890': {
+  'NID0227634830': {
     firstName: 'John',
     lastName: 'Doe',
     dateOfBirth: '1990-05-15',
     phoneNumber: '+1234567890',
-    email: 'john.doe@example.com',
-  },
-  'NID0987654321': {
-    firstName: 'Jane',
-    lastName: 'Smith',
-    dateOfBirth: '1985-03-22',
-    phoneNumber: '+1987654321',
     email: undefined,
   },
-  'NID5555555555': {
-    firstName: 'Alice',
-    lastName: 'Johnson',
-    dateOfBirth: '1992-11-08',
-    phoneNumber: '+1555555555',
-    email: 'alice.j@example.com',
+  'NID0816932085': {
+    firstName: 'John',
+    lastName: 'Doe',
+    dateOfBirth: '1990-05-15',
+    phoneNumber: '+1234567890',
+    email: undefined,
   },
 };
 
@@ -54,36 +46,8 @@ export async function fetchGovernmentData(
     return { ...mockDatabase[nationalIdNumber] };
   }
 
-  // For any other ID, always generate mock data (since this is mock data)
-  // In production, this would return null if user not found
-  const firstNames = ['Michael', 'Sarah', 'David', 'Emily', 'Robert', 'Lisa', 'James', 'Maria', 'Christopher', 'Jennifer'];
-  const lastNames = ['Brown', 'Davis', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Martinez', 'Jackson', 'White', 'Harris'];
-  
-  // Use National ID as seed for consistent data generation
-  const idSeed = parseInt(nationalIdNumber.replace(/\D/g, '').slice(-6)) || 123456;
-  const firstNameIndex = idSeed % firstNames.length;
-  const lastNameIndex = (idSeed * 7) % lastNames.length;
-  
-  const firstName = firstNames[firstNameIndex];
-  const lastName = lastNames[lastNameIndex];
-  
-  // Generate consistent date of birth based on ID
-  const birthYear = 1980 + (idSeed % 30);
-  const birthMonth = (idSeed % 12) + 1;
-  const birthDay = (idSeed % 28) + 1;
-  
-  // Generate consistent phone number
-  const phoneNumber = `+1${String(1000000000 + (idSeed % 9000000000)).padStart(10, '0')}`;
-  
-  // 50% chance of having email
-  const hasEmail = (idSeed % 2) === 0;
-  
-  return {
-    firstName,
-    lastName,
-    dateOfBirth: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
-    phoneNumber,
-    email: hasEmail ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com` : undefined,
-  };
+  // If not found in mock database, return null
+  // In production, this would query the actual government API
+  return null;
 }
 
