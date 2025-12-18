@@ -50,6 +50,8 @@ export default function RootLayout() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="_splash" />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="register/success" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

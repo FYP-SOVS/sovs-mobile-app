@@ -49,30 +49,41 @@ export async function fetchGovernmentData(
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1500));
 
-  // Check if record exists
+  // Check if record exists in predefined mock database
   if (mockDatabase[nationalIdNumber]) {
     return { ...mockDatabase[nationalIdNumber] };
   }
 
-  // For other IDs, generate random data (simulating successful lookup)
-  // In production, return null if not found
-  const generateRandom = Math.random() > 0.3; // 70% chance of finding data
-
-  if (generateRandom) {
-    const firstNames = ['Michael', 'Sarah', 'David', 'Emily', 'Robert', 'Lisa'];
-    const lastNames = ['Brown', 'Davis', 'Wilson', 'Moore', 'Taylor', 'Anderson'];
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-
-    return {
-      firstName,
-      lastName,
-      dateOfBirth: `${1970 + Math.floor(Math.random() * 30)}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-      phoneNumber: `+1${Math.floor(Math.random() * 1000000000).toString().padStart(10, '0')}`,
-      email: Math.random() > 0.5 ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com` : undefined,
-    };
-  }
-
-  return null; // User not found
+  // For any other ID, always generate mock data (since this is mock data)
+  // In production, this would return null if user not found
+  const firstNames = ['Michael', 'Sarah', 'David', 'Emily', 'Robert', 'Lisa', 'James', 'Maria', 'Christopher', 'Jennifer'];
+  const lastNames = ['Brown', 'Davis', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Martinez', 'Jackson', 'White', 'Harris'];
+  
+  // Use National ID as seed for consistent data generation
+  const idSeed = parseInt(nationalIdNumber.replace(/\D/g, '').slice(-6)) || 123456;
+  const firstNameIndex = idSeed % firstNames.length;
+  const lastNameIndex = (idSeed * 7) % lastNames.length;
+  
+  const firstName = firstNames[firstNameIndex];
+  const lastName = lastNames[lastNameIndex];
+  
+  // Generate consistent date of birth based on ID
+  const birthYear = 1980 + (idSeed % 30);
+  const birthMonth = (idSeed % 12) + 1;
+  const birthDay = (idSeed % 28) + 1;
+  
+  // Generate consistent phone number
+  const phoneNumber = `+1${String(1000000000 + (idSeed % 9000000000)).padStart(10, '0')}`;
+  
+  // 50% chance of having email
+  const hasEmail = (idSeed % 2) === 0;
+  
+  return {
+    firstName,
+    lastName,
+    dateOfBirth: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
+    phoneNumber,
+    email: hasEmail ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com` : undefined,
+  };
 }
 

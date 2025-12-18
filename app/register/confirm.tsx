@@ -25,18 +25,7 @@ export default function ConfirmRegistrationScreen() {
       const result = await createVoterAccount(userData);
 
       if (result.success) {
-        Alert.alert(
-          'Registration Successful',
-          'You can now log in with your phone number or email.',
-          [
-            {
-              text: 'Login',
-              onPress: () => {
-                router.replace('/login');
-              },
-            },
-          ]
-        );
+        router.replace('/register/success');
       } else {
         Alert.alert('Error', result.error || 'Failed to create account. Please try again.');
         setIsCreating(false);

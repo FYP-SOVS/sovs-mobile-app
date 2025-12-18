@@ -68,14 +68,7 @@ export default function LoginScreen() {
       const result = await verifyOTP(phoneOrEmail.trim(), otp.trim());
 
       if (result.success) {
-        Alert.alert('Login Successful', 'Welcome back!', [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.replace('/');
-            },
-          },
-        ]);
+        router.replace('/(tabs)');
       } else {
         Alert.alert('Verification Failed', result.error || 'Invalid OTP. Please try again.');
       }

@@ -17,7 +17,8 @@
     "android": {
       "package": "com.sovs.app",
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
@@ -42,6 +43,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "29b06f7c-ad0e-4798-a109-8f22661798f6"
+      }
+    },
+    "owner": "imfurankasebruno"
   }
 }
