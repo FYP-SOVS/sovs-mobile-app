@@ -70,7 +70,17 @@ export default function LoginScreen() {
         setOtpSent(true);
         setStep('otp');
         setCountdown(60);
-        Alert.alert(t('login.otpSent'), t('login.otpSentMessage'));
+        
+        // In development mode, show OTP code in alert
+        if (result.otpCode) {
+          Alert.alert(
+            t('login.otpSent'),
+            `${t('login.otpSentMessage')}\n\n🔐 DEV MODE - Your OTP: ${result.otpCode}`,
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert(t('login.otpSent'), t('login.otpSentMessage'));
+        }
       } else {
         Alert.alert(t('common.error'), result.error || t('common.error'));
       }

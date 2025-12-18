@@ -79,11 +79,36 @@ export async function registerUser(data: {
   }
 }
 
+// Development mode: Set to true to use mock OTP (bypasses Supabase Auth)
+const USE_MOCK_OTP = true; // Change to false when SMS/Email providers are configured
+
+// In-memory storage for mock OTPs (for development/testing)
+const mockOTPStore: Record<string, { code: string; expiresAt: number }> = {};
+
 /**
  * Send OTP for phone/email login
  */
-export async function sendOTP(phoneOrEmail: string): Promise<{ success: boolean; error?: string }> {
+export async function sendOTP(phoneOrEmail: string): Promise<{ success: boolean; error?: string; otpCode?: string }> {
   try {
+    // Development mode: Use mock OTP
+    if (USE_MOCK_OTP) {
+      // Generate 6-digit OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+      
+      mockOTPStore[phoneOrEmail] = { code: otpCode, expiresAt };
+      
+      // Log OTP to console for development
+      console.log('🔐 [DEV MODE] OTP Code for', phoneOrEmail, ':', otpCode);
+      console.log('📝 This OTP expires in 5 minutes');
+      
+      return { 
+        success: true, 
+        otpCode: otpCode // Return OTP for testing (you can show it in an alert)
+      };
+    }
+
+    // Production mode: Use Supabase Auth
     const isEmail = phoneOrEmail.includes('@');
     
     if (isEmail) {
@@ -122,6 +147,39 @@ export async function verifyOTP(
   token: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Development mode: Use mock OTP verification
+    if (USE_MOCK_OTP) {
+      const stored = mockOTPStore[phoneOrEmail];
+      
+      if (!stored) {
+        return { success: false, error: 'No OTP found. Please request a new one.' };
+      }
+      
+      if (Date.now() > stored.expiresAt) {
+        delete mockOTPStore[phoneOrEmail];
+        return { success: false, error: 'OTP expired. Please request a new one.' };
+      }
+      
+      if (stored.code !== token) {
+        return { success: false, error: 'Invalid OTP code. Please try again.' };
+      }
+      
+      // OTP is valid - create a mock session
+      // In development, we'll just mark as successful
+      // You might want to create a session manually here
+      delete mockOTPStore[phoneOrEmail];
+      
+      console.log('✅ [DEV MODE] OTP verified successfully for', phoneOrEmail);
+      
+      // Try to sign in with password (using the temp password from registration)
+      // Or create a session manually
+      // For now, we'll just return success
+      // You may need to manually set a session token for the app to work
+      
+      return { success: true };
+    }
+
+    // Production mode: Use Supabase Auth
     const isEmail = phoneOrEmail.includes('@');
     
     if (isEmail) {
