@@ -239,3 +239,4 @@ GET http://72.60.37.106:8000/functions/v1/find-user?phone_or_email={value}
 - Sessions stored securely in AsyncStorage
 - User data encrypted at rest in database
 
+

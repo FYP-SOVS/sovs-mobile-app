@@ -99,10 +99,9 @@ export default function IdentityVerificationScreen() {
               performDocumentLiveness: false,
             });
 
-            setIsVerifying(false);
-
-            // Check if verification was successful
+            // Check if verification was successful FIRST
             if (!result.success) {
+              setIsVerifying(false);
               // Verification failed - show error message
               const errorMessage = result.error || 
                 (result.critical_warnings 
@@ -129,7 +128,9 @@ export default function IdentityVerificationScreen() {
             }
 
             // Check if we have critical data (name, DOB, document number)
-            if (!result.has_critical_data || !result.data) {
+            // has_critical_data can be null, so check explicitly
+            if (result.has_critical_data === false || result.has_critical_data === null || !result.data) {
+              setIsVerifying(false);
               Alert.alert(
                 t('registration.verificationFailed'),
                 'Required information (name, date of birth, or document number) could not be extracted from the document. Please ensure the image is clear and try again.',
@@ -151,6 +152,7 @@ export default function IdentityVerificationScreen() {
 
             // Check if status is Declined
             if (result.status === 'Declined') {
+              setIsVerifying(false);
               Alert.alert(
                 t('registration.verificationFailed'),
                 'Document verification was declined. Please ensure your ID is valid, not expired, and the image is clear.',
@@ -172,6 +174,7 @@ export default function IdentityVerificationScreen() {
 
             // Check for critical warnings even if success is true
             if (result.critical_warnings) {
+              setIsVerifying(false);
               Alert.alert(
                 t('registration.verificationFailed'),
                 'Some critical information could not be detected from the document. Please ensure the image is clear and try again.',
@@ -198,6 +201,7 @@ export default function IdentityVerificationScreen() {
 
             // Validate that we have the minimum required data
             if (!firstName || !lastName || !dateOfBirth) {
+              setIsVerifying(false);
               Alert.alert(
                 t('registration.verificationFailed'),
                 'Could not extract name or date of birth from the document. Please try again with a clearer image.',
@@ -217,6 +221,7 @@ export default function IdentityVerificationScreen() {
               return;
             }
 
+            setIsVerifying(false);
             router.push({
               pathname: '/register/confirm',
               params: {
