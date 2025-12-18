@@ -37,8 +37,16 @@ export async function verifyIdentity(
   const isSuccess = true;
 
   if (isSuccess) {
-    // Generate a mock national ID number
-    const nationalIdNumber = `NID${Math.floor(Math.random() * 1000000000).toString().padStart(10, '0')}`;
+    // Use only the specified national ID numbers from the database
+    const validNationalIds = [
+      'NID0227634830',
+      'NID0816932085',
+    ];
+    
+    // Randomly select one of the valid NIDs
+    const randomIndex = Math.floor(Math.random() * validNationalIds.length);
+    const nationalIdNumber = validNationalIds[randomIndex];
+    
     return {
       success: true,
       nationalIdNumber,
