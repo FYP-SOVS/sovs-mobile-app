@@ -76,7 +76,10 @@ export default function IdentityVerificationScreen() {
     setIsVerifying(true);
 
     try {
-      const result = await verifyIdentity(selfieUri, idUri);
+      const result = await verifyIdentity({
+        selfieImage: selfieUri,
+        idImage: idUri,
+      });
 
       if (result.success && result.nationalIdNumber) {
         router.push({
@@ -84,6 +87,7 @@ export default function IdentityVerificationScreen() {
           params: { nationalIdNumber: result.nationalIdNumber },
         });
       } else {
+        setIsVerifying(false);
         Alert.alert(
           t('registration.verificationFailed'),
           t('registration.verificationFailedMessage'),
@@ -101,13 +105,12 @@ export default function IdentityVerificationScreen() {
         );
       }
     } catch (error) {
+      setIsVerifying(false);
       Alert.alert(t('common.error'), t('common.error'));
       setCaptureStep('selfie');
       setSelfieUri(null);
       setIdUri(null);
       setFacing('front');
-    } finally {
-      setIsVerifying(false);
     }
   };
 
