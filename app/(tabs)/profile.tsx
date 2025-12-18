@@ -1,22 +1,107 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Pressable, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Calendar, Shield, LogOut, Languages } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { Language } from '@/i18n/translations';
+import { getCurrentUser, getCurrentSession, signOut } from '@/services/auth';
+import { usersAPI } from '@/services/api';
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email?: string;
+  dateOfBirth: string;
+  role: string;
+  status?: string;
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { t, language, setLanguage } = useTranslation();
-  const [userData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    phoneNumber: '+1234567890',
-    email: 'john.doe@example.com',
-    dateOfBirth: '1990-05-15',
-    role: 'VOTER',
-  });
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get current Supabase session
+      const session = await getCurrentSession();
+      const authUser = await getCurrentUser();
+      
+      if (!session && !authUser) {
+        // No session, redirect to login
+        router.replace('/login');
+        return;
+      }
+
+      // Try to get user ID from auth user metadata or session
+      let userId: string | null = null;
+      
+      if (authUser?.user_metadata?.user_id) {
+        userId = authUser.user_metadata.user_id;
+      } else if (authUser?.id) {
+        userId = authUser.id;
+      }
+
+      // If we have userId, fetch from users table
+      if (userId) {
+        try {
+          const user = await usersAPI.getById(userId);
+          
+          if (user) {
+            setUserData({
+              firstName: user.name || '',
+              lastName: user.surname || '',
+              phoneNumber: user.phone_number || '',
+              email: user.email || undefined,
+              dateOfBirth: user.date_of_birth || '',
+              role: 'VOTER', // Default role, you can fetch from user_roles table if needed
+              status: user.status || 'pending',
+            });
+          }
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+        }
+      }
+
+      // Fallback: Try to get user by phone/email from auth
+      if (!userData && authUser) {
+        const phoneOrEmail = authUser.phone || authUser.email;
+        if (phoneOrEmail) {
+          try {
+            const user = await usersAPI.getByPhoneOrEmail(phoneOrEmail);
+            if (user) {
+              setUserData({
+                firstName: user.name || '',
+                lastName: user.surname || '',
+                phoneNumber: user.phone_number || '',
+                email: user.email || undefined,
+                dateOfBirth: user.date_of_birth || '',
+                role: 'VOTER',
+                status: user.status || 'pending',
+              });
+            }
+          } catch (err) {
+            console.error('Error fetching user by phone/email:', err);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      Alert.alert(t('common.error'), 'Failed to load user data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -29,10 +114,19 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
+              setIsLoggingOut(true);
+              // Sign out from Supabase
+              await signOut();
+              // Clear local storage
               await AsyncStorage.removeItem('hasSeenOnboarding');
-              router.replace('/');
+              // Redirect to login
+              router.replace('/login');
             } catch (error) {
-              router.replace('/');
+              console.error('Logout error:', error);
+              // Still redirect even if signOut fails
+              router.replace('/login');
+            } finally {
+              setIsLoggingOut(false);
             }
           },
         },
@@ -43,6 +137,36 @@ export default function ProfileScreen() {
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'tr' : 'en');
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('profile.title')}</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#667eea" />
+          <Text style={styles.loadingText}>{t('common.loading')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('profile.title')}</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.errorText}>No user data found</Text>
+          <Pressable style={styles.retryButton} onPress={loadUserData}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -59,9 +183,9 @@ export default function ProfileScreen() {
             <User size={48} color="#667eea" strokeWidth={2} />
           </View>
           <Text style={styles.name}>
-            {userData?.firstName} {userData?.lastName}
+            {userData.firstName} {userData.lastName}
           </Text>
-          <Text style={styles.role}>{userData?.role}</Text>
+          <Text style={styles.role}>{userData.role}</Text>
         </View>
 
         <View style={styles.languageSection}>
@@ -138,18 +262,43 @@ export default function ProfileScreen() {
 
           <View style={styles.infoRow}>
             <View style={styles.infoIcon}>
-              <Shield size={20} color="#10b981" strokeWidth={2} />
+              <Shield 
+                size={20} 
+                color={userData.status === 'verified' ? '#10b981' : userData.status === 'suspended' ? '#ef4444' : '#f59e0b'} 
+                strokeWidth={2} 
+              />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>{t('profile.verificationStatus')}</Text>
-              <Text style={styles.infoValue}>{t('profile.verified')}</Text>
+              <Text style={[
+                styles.infoValue,
+                userData.status === 'verified' && styles.statusVerified,
+                userData.status === 'suspended' && styles.statusSuspended,
+                userData.status === 'pending' && styles.statusPending,
+              ]}>
+                {userData.status === 'verified' 
+                  ? t('profile.verified') 
+                  : userData.status === 'suspended'
+                  ? t('profile.suspended') || 'Suspended'
+                  : t('profile.pending') || 'Pending'}
+              </Text>
             </View>
           </View>
         </View>
 
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-          <LogOut size={20} color="#fff" strokeWidth={2.5} />
-          <Text style={styles.logoutButtonText}>{t('profile.logout')}</Text>
+        <Pressable 
+          style={[styles.logoutButton, isLoggingOut && styles.logoutButtonDisabled]} 
+          onPress={handleLogout}
+          disabled={isLoggingOut}
+        >
+          {isLoggingOut ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <LogOut size={20} color="#fff" strokeWidth={2.5} />
+              <Text style={styles.logoutButtonText}>{t('profile.logout')}</Text>
+            </>
+          )}
         </Pressable>
       </ScrollView>
     </View>
@@ -325,5 +474,45 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  logoutButtonDisabled: {
+    opacity: 0.6,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ef4444',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#667eea',
+    borderRadius: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  statusVerified: {
+    color: '#10b981',
+  },
+  statusSuspended: {
+    color: '#ef4444',
+  },
+  statusPending: {
+    color: '#f59e0b',
   },
 });
