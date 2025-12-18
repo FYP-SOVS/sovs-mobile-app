@@ -164,17 +164,55 @@ export async function verifyOTP(
         return { success: false, error: 'Invalid OTP code. Please try again.' };
       }
       
-      // OTP is valid - create a mock session
-      // In development, we'll just mark as successful
-      // You might want to create a session manually here
+      // OTP is valid - create a session
       delete mockOTPStore[phoneOrEmail];
       
       console.log('✅ [DEV MODE] OTP verified successfully for', phoneOrEmail);
       
-      // Try to sign in with password (using the temp password from registration)
-      // Or create a session manually
-      // For now, we'll just return success
-      // You may need to manually set a session token for the app to work
+      // Get user from users table
+      const user = await usersAPI.getByPhoneOrEmail(phoneOrEmail);
+      
+      if (!user) {
+        return { success: false, error: 'User not found in database' };
+      }
+
+      // Try to sign in with password to create a real session
+      // Use the placeholder email format that was used during registration
+      const authEmail = user.email || `${user.phone_number.replace(/[^0-9]/g, '')}@sovs.local`;
+      
+      // Try to sign in - if user doesn't exist in auth, create them
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: `temp_${user.user_id}`, // Use a predictable password based on user_id
+      });
+
+      // If sign in fails (user doesn't exist in auth), create the auth user
+      if (signInError) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: authEmail,
+          password: `temp_${user.user_id}`,
+          options: {
+            data: {
+              name: `${user.name} ${user.surname}`,
+              phone_number: user.phone_number,
+              user_id: user.user_id,
+            },
+          },
+        });
+
+        if (signUpError && !signUpError.message.includes('already registered')) {
+          console.error('Error creating auth user:', signUpError);
+          // Still return success since OTP was valid
+        }
+
+        // Try to sign in again after creating
+        if (!signUpError || signUpError.message.includes('already registered')) {
+          await supabase.auth.signInWithPassword({
+            email: authEmail,
+            password: `temp_${user.user_id}`,
+          });
+        }
+      }
       
       return { success: true };
     }

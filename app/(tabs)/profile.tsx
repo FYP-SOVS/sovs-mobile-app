@@ -37,19 +37,20 @@ export default function ProfileScreen() {
       const session = await getCurrentSession();
       const authUser = await getCurrentUser();
       
-      if (!session && !authUser) {
-        // No session, redirect to login
-        router.replace('/login');
-        return;
-      }
-
       // Try to get user ID from auth user metadata or session
       let userId: string | null = null;
+      let phoneOrEmail: string | null = null;
       
       if (authUser?.user_metadata?.user_id) {
         userId = authUser.user_metadata.user_id;
       } else if (authUser?.id) {
         userId = authUser.id;
+      }
+
+      if (authUser?.phone) {
+        phoneOrEmail = authUser.phone;
+      } else if (authUser?.email) {
+        phoneOrEmail = authUser.email;
       }
 
       // If we have userId, fetch from users table
@@ -67,37 +68,47 @@ export default function ProfileScreen() {
               role: 'VOTER', // Default role, you can fetch from user_roles table if needed
               status: user.status || 'pending',
             });
+            return; // Success, exit early
           }
         } catch (err) {
-          console.error('Error fetching user data:', err);
+          console.error('Error fetching user data by ID:', err);
         }
       }
 
-      // Fallback: Try to get user by phone/email from auth
-      if (!userData && authUser) {
-        const phoneOrEmail = authUser.phone || authUser.email;
-        if (phoneOrEmail) {
-          try {
-            const user = await usersAPI.getByPhoneOrEmail(phoneOrEmail);
-            if (user) {
-              setUserData({
-                firstName: user.name || '',
-                lastName: user.surname || '',
-                phoneNumber: user.phone_number || '',
-                email: user.email || undefined,
-                dateOfBirth: user.date_of_birth || '',
-                role: 'VOTER',
-                status: user.status || 'pending',
-              });
-            }
-          } catch (err) {
-            console.error('Error fetching user by phone/email:', err);
+      // Fallback: Try to get user by phone/email
+      if (phoneOrEmail) {
+        try {
+          const user = await usersAPI.getByPhoneOrEmail(phoneOrEmail);
+          if (user) {
+            setUserData({
+              firstName: user.name || '',
+              lastName: user.surname || '',
+              phoneNumber: user.phone_number || '',
+              email: user.email || undefined,
+              dateOfBirth: user.date_of_birth || '',
+              role: 'VOTER',
+              status: user.status || 'pending',
+            });
+            return; // Success, exit early
           }
+        } catch (err) {
+          console.error('Error fetching user by phone/email:', err);
         }
+      }
+
+      // If we still don't have user data and no session/auth user, redirect to login
+      if (!session && !authUser) {
+        router.replace('/login');
+        return;
+      }
+
+      // If we have session/auth but no user data, show error
+      if (!userData) {
+        console.warn('User session exists but user data not found in database');
       }
     } catch (error) {
       console.error('Error loading user data:', error);
-      Alert.alert(t('common.error'), 'Failed to load user data');
+      // Don't redirect on error, just show the error state
     } finally {
       setIsLoading(false);
     }
