@@ -45,15 +45,17 @@ export async function registerUser(data: {
     }
 
     // Step 2: Create user in Supabase Auth for authentication
-    // Generate a temporary password if not provided
-    const password = data.password || `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    // Password is now required (user sets it during registration)
+    if (!data.password) {
+      return { success: false, error: 'Password is required' };
+    }
     
     // Use email if available, otherwise create a placeholder email for phone-based auth
     const authEmail = data.email || `${data.phoneNumber.replace(/[^0-9]/g, '')}@sovs.local`;
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: authEmail,
-      password: password,
+      password: data.password,
       options: {
         data: {
           name: `${data.name} ${data.surname}`,
@@ -64,14 +66,15 @@ export async function registerUser(data: {
     });
 
     if (authError) {
-      // If auth user already exists, that's okay - we still have the user in our table
+      // If auth user already exists, try to sign in instead
       if (authError.message.includes('already registered')) {
+        // User exists, try to update password or just continue
         console.log('Auth user already exists, but user record created successfully');
         return { success: true, userId };
       }
       
-      // For other errors, log but don't fail since user is in our table
-      console.error('Auth signup error (non-critical):', authError.message);
+      // For other errors, return error
+      return { success: false, error: authError.message };
     }
 
     return { success: true, userId };

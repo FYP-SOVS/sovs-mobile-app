@@ -125,3 +125,31 @@ export const governmentDBAPI = {
   },
 };
 
+/**
+ * Didit Session API
+ */
+export const diditSessionAPI = {
+  /**
+   * Create a Didit verification session
+   */
+  create: async (vendorData?: string, metadata?: any, language?: string) => {
+    return callFunction('didit-create-session', {
+      method: 'POST',
+      body: {
+        vendor_data: vendorData,
+        metadata: metadata,
+        language: language,
+      },
+    });
+  },
+
+  /**
+   * Get session results
+   */
+  getResults: async (sessionId: string) => {
+    return callFunction(`didit-get-session/${sessionId}`, {
+      method: 'GET',
+    });
+  },
+};
+
