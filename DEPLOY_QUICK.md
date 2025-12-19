@@ -41,3 +41,4 @@ vercel --prod dist  # or netlify deploy --prod --dir=dist
 - The app is responsive and works on desktop and mobile browsers
 - All bilingual features (EN/TR) work on web too
 
+

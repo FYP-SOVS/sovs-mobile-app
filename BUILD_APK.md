@@ -88,3 +88,4 @@ If you encounter issues:
 2. Check your Expo account has build credits (free tier has limits)
 3. Verify app.json configuration is correct
 4. Check EAS status: https://expo.dev/accounts/[your-account]/projects/sovs/builds
+
