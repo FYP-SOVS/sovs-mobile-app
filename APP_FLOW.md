@@ -240,3 +240,4 @@ GET http://72.60.37.106:8000/functions/v1/find-user?phone_or_email={value}
 - User data encrypted at rest in database
 
 
+
