@@ -51,6 +51,23 @@ export async function registerUser(data: {
           if (!signInError && signInData?.user) {
             const authUserId = signInData.user.id;
             
+            // Update phone number and email (if provided) in Supabase Auth for existing user
+            const updateData: any = {
+              phone: data.phoneNumber,
+              data: {
+                name: `${data.name} ${data.surname}`,
+                phone_number: data.phoneNumber,
+                user_id: authUserId,
+              },
+            };
+            
+            // Only update email if provided
+            if (data.email) {
+              updateData.email = data.email;
+            }
+            
+            await supabase.auth.updateUser(updateData);
+            
             // Check if user already exists in users table
             const existingUser = await usersAPI.getByPhoneOrEmail(data.phoneNumber);
             if (existingUser) {
@@ -115,12 +132,22 @@ export async function registerUser(data: {
       }
     }
 
-    // Update auth user metadata with the user_id (for consistency)
-    await supabase.auth.updateUser({
+    // Update auth user with phone number, email (if provided), and metadata (for consistency)
+    const updateData: any = {
+      phone: data.phoneNumber,
       data: {
+        name: `${data.name} ${data.surname}`,
+        phone_number: data.phoneNumber,
         user_id: authUserId,
       },
-    });
+    };
+    
+    // Only update email if provided
+    if (data.email) {
+      updateData.email = data.email;
+    }
+    
+    await supabase.auth.updateUser(updateData);
 
     // User created successfully in both Supabase Auth and users table with the same UUID
     console.log('User created successfully in Supabase Auth and users table with UUID:', authUserId);

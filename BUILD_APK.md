@@ -89,3 +89,4 @@ If you encounter issues:
 3. Verify app.json configuration is correct
 4. Check EAS status: https://expo.dev/accounts/[your-account]/projects/sovs/builds
 
+
