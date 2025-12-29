@@ -24,6 +24,71 @@ export default function IdentityVerificationScreen() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
+  // Check for return from Didit callback with session_id in URL
+  useEffect(() => {
+    const handleUrl = async (event: { url: string }) => {
+      const url = new URL(event.url);
+      const returnedSessionId = url.searchParams.get('session_id');
+      const status = url.searchParams.get('status');
+      
+      if (returnedSessionId) {
+        setSessionId(returnedSessionId);
+        setIsVerifying(true);
+        
+        // Immediately check session results
+        try {
+          const result = await getDiditSessionResults(returnedSessionId);
+          const verificationStatus = result.status || result.decision_status || status;
+          
+          if (verificationStatus === 'Approved') {
+            const userData = result.user_data || {};
+            
+            if (userData.first_name && userData.last_name && userData.date_of_birth) {
+              // Navigate directly to password page
+              router.push({
+                pathname: '/register/password',
+                params: {
+                  sessionId: returnedSessionId,
+                  firstName: userData.first_name,
+                  lastName: userData.last_name,
+                  dateOfBirth: userData.date_of_birth,
+                  documentNumber: userData.document_number || '',
+                  diditData: JSON.stringify(result),
+                },
+              });
+              return;
+            }
+          }
+          
+          // If not approved or missing data, start polling
+          const interval = setInterval(() => {
+            pollSessionResults(returnedSessionId);
+          }, 3000);
+          setPollingInterval(interval);
+        } catch (error) {
+          console.error('Error checking session on return:', error);
+          // Start polling as fallback
+          const interval = setInterval(() => {
+            pollSessionResults(returnedSessionId);
+          }, 3000);
+          setPollingInterval(interval);
+        }
+      }
+    };
+
+    // Handle initial URL (web)
+    Linking.getInitialURL().then((url) => {
+      if (url) handleUrl({ url });
+    });
+
+    // Listen for URL changes (deep links)
+    const subscription = Linking.addEventListener('url', handleUrl);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   // Clean up polling on unmount
   useEffect(() => {
     return () => {
