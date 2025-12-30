@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -10,6 +10,48 @@ import { useTranslation } from '@/contexts/LanguageContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DIDIT_SESSION_KEY = '@didit_verification_session';
+
+// Cross-platform storage helper
+const storage = {
+  async getItem(key: string) {
+    try {
+      if (Platform.OS === 'web') {
+        return typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+      } else {
+        return await AsyncStorage.getItem(key);
+      }
+    } catch (error) {
+      console.error('Storage getItem error:', error);
+      return null;
+    }
+  },
+  async setItem(key: string, value: string) {
+    try {
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(key, value);
+        }
+      } else {
+        await AsyncStorage.setItem(key, value);
+      }
+    } catch (error) {
+      console.error('Storage setItem error:', error);
+    }
+  },
+  async removeItem(key: string) {
+    try {
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(key);
+        }
+      } else {
+        await AsyncStorage.removeItem(key);
+      }
+    } catch (error) {
+      console.error('Storage removeItem error:', error);
+    }
+  },
+};
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,7 +73,7 @@ export default function IdentityVerificationScreen() {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const savedSession = await AsyncStorage.getItem(DIDIT_SESSION_KEY);
+        const savedSession = await storage.getItem(DIDIT_SESSION_KEY);
         if (savedSession) {
           const { sessionId: savedSessionId } = JSON.parse(savedSession);
           if (savedSessionId) {
@@ -161,7 +203,7 @@ export default function IdentityVerificationScreen() {
         
         // Clear saved session
         try {
-          await AsyncStorage.removeItem(DIDIT_SESSION_KEY);
+          await storage.removeItem(DIDIT_SESSION_KEY);
         } catch (error) {
           console.error('Error clearing session:', error);
         }
@@ -242,7 +284,7 @@ export default function IdentityVerificationScreen() {
       
       // Save session to storage so it persists across page reloads
       try {
-        await AsyncStorage.setItem(DIDIT_SESSION_KEY, JSON.stringify({ sessionId, createdAt: Date.now() }));
+        await storage.setItem(DIDIT_SESSION_KEY, JSON.stringify({ sessionId, createdAt: Date.now() }));
       } catch (error) {
         console.error('Error saving session:', error);
       }
@@ -275,7 +317,7 @@ export default function IdentityVerificationScreen() {
         setIsVerifying(false);
         // Clear saved session
         try {
-          await AsyncStorage.removeItem(DIDIT_SESSION_KEY);
+          await storage.removeItem(DIDIT_SESSION_KEY);
         } catch (error) {
           console.error('Error clearing session:', error);
         }
