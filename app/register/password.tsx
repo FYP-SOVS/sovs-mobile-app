@@ -13,7 +13,15 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Lock, Eye, EyeOff, Languages, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react-native';
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  Languages,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react-native';
 import { registerUser } from '@/services/auth';
 import { useTranslation } from '@/contexts/LanguageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -445,10 +453,12 @@ export default function PasswordSetupScreen() {
 
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Confirm Password *</Text>
-              <View style={[
-                styles.passwordInputContainer,
-                passwordMatchError && styles.passwordInputContainerError,
-              ]}>
+              <View
+                style={[
+                  styles.passwordInputContainer,
+                  passwordMatchError && styles.passwordInputContainerError,
+                ]}
+              >
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="Confirm your password"
