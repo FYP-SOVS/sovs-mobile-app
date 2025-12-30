@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Shield, Loader, Languages, ExternalLink } from 'lucide-react-native';
 import { createDiditSession, getDiditSessionResults } from '@/services/diditSession';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const DIDIT_SESSION_KEY = '@didit_verification_session';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -24,6 +26,36 @@ export default function IdentityVerificationScreen() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+
+  // Restore verification session if it exists (for page reloads after DIDIT callback)
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const savedSession = await AsyncStorage.getItem(DIDIT_SESSION_KEY);
+        if (savedSession) {
+          const { sessionId: savedSessionId } = JSON.parse(savedSession);
+          if (savedSessionId) {
+            console.log('Restored DIDIT session from storage:', savedSessionId);
+            setSessionId(savedSessionId);
+            setIsVerifying(true);
+            
+            // Start polling immediately
+            const interval = setInterval(() => {
+              pollSessionResults(savedSessionId);
+            }, 3000);
+            setPollingInterval(interval);
+            
+            // Poll immediately
+            setTimeout(() => pollSessionResults(savedSessionId), 1000);
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring session:', error);
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   // Check for return from Didit callback with session_id in URL
   useEffect(() => {
@@ -115,7 +147,7 @@ export default function IdentityVerificationScreen() {
   }, [pollingInterval]);
 
   // Poll for session results
-  const pollSessionResults = async (sessionId: string) => {
+  const pollSessionResults = useCallback(async (sessionId: string) => {
     try {
       const result = await getDiditSessionResults(sessionId);
       
@@ -125,6 +157,13 @@ export default function IdentityVerificationScreen() {
         if (pollingInterval) {
           clearInterval(pollingInterval);
           setPollingInterval(null);
+        }
+        
+        // Clear saved session
+        try {
+          await AsyncStorage.removeItem(DIDIT_SESSION_KEY);
+        } catch (error) {
+          console.error('Error clearing session:', error);
         }
         
         setIsVerifying(false);
@@ -180,7 +219,7 @@ export default function IdentityVerificationScreen() {
       console.error('Error polling session:', error);
       // Continue polling on error (session might not be ready yet)
     }
-  };
+  }, [pollingInterval, t, router]);
 
   const handleStartVerification = async () => {
     try {
@@ -199,20 +238,29 @@ export default function IdentityVerificationScreen() {
         throw new Error('Failed to create verification session');
       }
 
-      setSessionId(session.session_id);
+      const sessionId = session.session_id;
+      
+      // Save session to storage so it persists across page reloads
+      try {
+        await AsyncStorage.setItem(DIDIT_SESSION_KEY, JSON.stringify({ sessionId, createdAt: Date.now() }));
+      } catch (error) {
+        console.error('Error saving session:', error);
+      }
+      
+      setSessionId(sessionId);
       setIsCreatingSession(false);
       setIsVerifying(true);
 
       // Start polling for results as soon as the session URL opens
       let activeInterval: NodeJS.Timeout | null = null;
-      if (session.session_id) {
+      if (sessionId) {
         activeInterval = setInterval(() => {
-          pollSessionResults(session.session_id!);
+          pollSessionResults(sessionId);
         }, 3000); // Poll every 3 seconds
         setPollingInterval(activeInterval);
         
         // Also poll immediately
-        setTimeout(() => pollSessionResults(session.session_id!), 2000);
+        setTimeout(() => pollSessionResults(sessionId), 2000);
       }
 
       // Open Didit verification URL and expect to return via deep link
@@ -225,6 +273,12 @@ export default function IdentityVerificationScreen() {
         }
         setPollingInterval(null);
         setIsVerifying(false);
+        // Clear saved session
+        try {
+          await AsyncStorage.removeItem(DIDIT_SESSION_KEY);
+        } catch (error) {
+          console.error('Error clearing session:', error);
+        }
         return;
       }
     } catch (error: any) {
