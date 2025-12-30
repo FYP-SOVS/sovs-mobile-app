@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Shield, Loader, Languages, ExternalLink } from 'lucide-react-native';
@@ -14,6 +14,7 @@ WebBrowser.maybeCompleteAuthSession();
 export default function IdentityVerificationScreen() {
   const router = useRouter();
   const { t, language, setLanguage } = useTranslation();
+  const params = useLocalSearchParams();
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'tr' : 'en');
@@ -26,53 +27,68 @@ export default function IdentityVerificationScreen() {
 
   // Check for return from Didit callback with session_id in URL
   useEffect(() => {
+    const processSessionCallback = async (callbackSessionId: string) => {
+      if (!callbackSessionId) return;
+      
+      setSessionId(callbackSessionId);
+      setIsVerifying(true);
+      
+      // Immediately check session results
+      try {
+        const result = await getDiditSessionResults(callbackSessionId);
+        const verificationStatus = result.status || result.decision_status;
+        
+        if (verificationStatus === 'Approved') {
+          const userData = result.user_data || {};
+          
+          if (userData.first_name && userData.last_name && userData.date_of_birth) {
+            // Navigate directly to password page
+            router.push({
+              pathname: '/register/password',
+              params: {
+                sessionId: callbackSessionId,
+                firstName: userData.first_name,
+                lastName: userData.last_name,
+                dateOfBirth: userData.date_of_birth,
+                documentNumber: userData.document_number || '',
+                diditData: JSON.stringify(result),
+              },
+            });
+            return;
+          }
+        }
+        
+        // If not approved or missing data, start polling
+        const interval = setInterval(() => {
+          pollSessionResults(callbackSessionId);
+        }, 3000);
+        setPollingInterval(interval);
+      } catch (error) {
+        console.error('Error checking session on return:', error);
+        // Start polling as fallback
+        const interval = setInterval(() => {
+          pollSessionResults(callbackSessionId);
+        }, 3000);
+        setPollingInterval(interval);
+      }
+    };
+
+    // Check for params from URL (web callback - when DIDIT redirects back)
+    const sessionIdFromParams = params.session_id as string | undefined;
+    if (sessionIdFromParams && !sessionId) {
+      processSessionCallback(sessionIdFromParams);
+    }
+  }, [params.session_id, sessionId]);
+
+  // Handle deep links for mobile
+  useEffect(() => {
     const handleUrl = async (event: { url: string }) => {
       const url = new URL(event.url);
       const returnedSessionId = url.searchParams.get('session_id');
-      const status = url.searchParams.get('status');
-      
-      if (returnedSessionId) {
-        setSessionId(returnedSessionId);
-        setIsVerifying(true);
-        
-        // Immediately check session results
-        try {
-          const result = await getDiditSessionResults(returnedSessionId);
-          const verificationStatus = result.status || result.decision_status || status;
-          
-          if (verificationStatus === 'Approved') {
-            const userData = result.user_data || {};
-            
-            if (userData.first_name && userData.last_name && userData.date_of_birth) {
-              // Navigate directly to password page
-              router.push({
-                pathname: '/register/password',
-                params: {
-                  sessionId: returnedSessionId,
-                  firstName: userData.first_name,
-                  lastName: userData.last_name,
-                  dateOfBirth: userData.date_of_birth,
-                  documentNumber: userData.document_number || '',
-                  diditData: JSON.stringify(result),
-                },
-              });
-              return;
-            }
-          }
-          
-          // If not approved or missing data, start polling
-          const interval = setInterval(() => {
-            pollSessionResults(returnedSessionId);
-          }, 3000);
-          setPollingInterval(interval);
-        } catch (error) {
-          console.error('Error checking session on return:', error);
-          // Start polling as fallback
-          const interval = setInterval(() => {
-            pollSessionResults(returnedSessionId);
-          }, 3000);
-          setPollingInterval(interval);
-        }
+      if (returnedSessionId && !sessionId) {
+        // Don't process if we already have a sessionId (prevent double processing)
+        // The params-based effect above will handle it
+        return;
       }
     };
 
@@ -81,13 +97,13 @@ export default function IdentityVerificationScreen() {
       if (url) handleUrl({ url });
     });
 
-    // Listen for URL changes (deep links)
+    // Listen for URL changes (deep links for mobile)
     const subscription = Linking.addEventListener('url', handleUrl);
 
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [sessionId]);
 
   // Clean up polling on unmount
   useEffect(() => {
