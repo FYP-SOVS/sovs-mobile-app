@@ -122,6 +122,37 @@ export async function registerUser(data: {
       },
     });
 
+    // Call register-voter cloud function to assign voter role
+    try {
+      const registerVoterResponse = await fetch(`${FUNCTIONS_BASE_URL}/register-voter`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: authUserId,
+          email: data.email || authEmail,
+          phone_number: data.phoneNumber,
+          name: data.name,
+          surname: data.surname,
+          date_of_birth: data.dateOfBirth,
+          role_id: 1, // Assign voter role
+        }),
+      });
+
+      if (!registerVoterResponse.ok) {
+        const errorData = await registerVoterResponse.json();
+        console.error('Failed to assign voter role:', errorData);
+        // Don't fail the registration if role assignment fails, but log it
+      } else {
+        const roleData = await registerVoterResponse.json();
+        console.log('Voter role assigned successfully:', roleData);
+      }
+    } catch (roleError: any) {
+      console.error('Error calling register-voter function:', roleError.message);
+      // Don't fail the registration if the cloud function call fails
+    }
+
     // User created successfully in both Supabase Auth and users table with the same UUID
     console.log('User created successfully in Supabase Auth and users table with UUID:', authUserId);
     return { success: true, userId: authUserId };
