@@ -1,5 +1,4 @@
 import { supabase, FUNCTIONS_BASE_URL } from './supabase';
-import { usersAPI } from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
@@ -41,83 +40,33 @@ export async function registerUser(data: {
       },
     });
 
+    let authUserId: string | undefined;
+
     if (authError) {
-      // If auth user already exists, try to get the existing user
+      // If auth user already exists, sign in to retrieve the ID
       if (authError.message.includes('already registered') || authError.message.includes('User already registered')) {
         console.log('Auth user already exists, attempting to sign in to get user ID');
-        
-        // Try to sign in to get the user ID
-        try {
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: authEmail,
-            password: data.password,
-          });
-          
-          if (!signInError && signInData?.user) {
-            const authUserId = signInData.user.id;
-            
-            // Check if user already exists in users table
-            const existingUser = await usersAPI.getByPhoneOrEmail(data.phoneNumber);
-            if (existingUser) {
-              // User exists, return success
-              return { success: true, userId: authUserId };
-            }
-            
-            // User doesn't exist in users table, create it with the auth UUID
-            try {
-              await usersAPI.create({
-                user_id: authUserId, // Use Supabase Auth UUID
-                phone_number: data.phoneNumber,
-                email: data.email,
-                name: data.name,
-                surname: data.surname,
-                date_of_birth: data.dateOfBirth,
-                status: 'pending',
-              });
-              return { success: true, userId: authUserId };
-            } catch (createErr: any) {
-              return { success: false, error: createErr.message || 'Failed to create user record' };
-            }
-          } else {
-            return { success: false, error: signInError?.message || 'Failed to sign in existing user' };
-          }
-        } catch (updateErr) {
-          return { success: false, error: 'User already exists but could not retrieve user ID' };
+
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: authEmail,
+          password: data.password,
+        });
+
+        if (signInError || !signInData?.user?.id) {
+          return { success: false, error: signInError?.message || 'Failed to sign in existing user' };
         }
-      }
-      
-      // For other errors, return error
-      return { success: false, error: authError.message };
-    }
 
-    // Step 2: Use the Supabase Auth UUID to create user in users table
-    if (!authData?.user?.id) {
-      return { success: false, error: 'Failed to get user ID from Supabase Auth' };
-    }
-
-    const authUserId = authData.user.id;
-
-    try {
-      // Create user in users table using the Supabase Auth UUID
-      await usersAPI.create({
-        user_id: authUserId, // Use Supabase Auth UUID as user_id
-        phone_number: data.phoneNumber,
-        email: data.email,
-        name: data.name,
-        surname: data.surname,
-        date_of_birth: data.dateOfBirth,
-        status: 'pending',
-      });
-    } catch (err: any) {
-      // Check if user already exists (might have been created in a previous attempt)
-      if (err.message && (err.message.includes('duplicate') || err.message.includes('unique'))) {
-        // User already exists in users table, that's okay - return success
-        console.log('User already exists in users table, continuing...');
+        authUserId = signInData.user.id;
       } else {
-        // For other errors, we should clean up the auth user, but for now just return error
-        console.error('Failed to create user in users table:', err);
-        return { success: false, error: err.message || 'Failed to create user record' };
+        // Other auth errors
+        return { success: false, error: authError.message };
       }
+    } else {
+      authUserId = authData?.user?.id;
+    }
+
+    if (!authUserId) {
+      return { success: false, error: 'Failed to get user ID from Supabase Auth' };
     }
 
     // Update auth user metadata with the user_id (for consistency)
@@ -159,8 +108,8 @@ export async function registerUser(data: {
       // Don't fail the registration if the cloud function call fails
     }
 
-    // User created successfully in both Supabase Auth and users table with the same UUID
-    console.log('User created successfully in Supabase Auth and users table with UUID:', authUserId);
+    // User created/verified in Auth; register-voter handles DB insert + role assignment
+    console.log('User registered in Supabase Auth; register-voter invoked with UUID:', authUserId);
     return { success: true, userId: authUserId };
   } catch (error: any) {
     return { success: false, error: error.message || 'Registration failed' };
