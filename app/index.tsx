@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Shield, LogIn, Languages } from 'lucide-react-native';
+import { Shield, Languages } from 'lucide-react-native';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function WelcomeScreen() {
@@ -34,13 +34,6 @@ export default function WelcomeScreen() {
           <Link href="/register/identity" asChild>
             <Pressable style={styles.primaryButton}>
               <Text style={styles.primaryButtonText}>{t('welcome.getStarted')}</Text>
-            </Pressable>
-          </Link>
-
-          <Link href="/login" asChild>
-            <Pressable style={styles.secondaryButton}>
-              <LogIn size={20} color="#667eea" strokeWidth={2.5} style={styles.buttonIcon} />
-              <Text style={styles.secondaryButtonText}>{t('welcome.login')}</Text>
             </Pressable>
           </Link>
         </View>
