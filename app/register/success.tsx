@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle2, ArrowRight, Languages } from 'lucide-react-native';
+import { CheckCircle2, ArrowRight, Languages, Mail } from 'lucide-react-native';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function RegistrationSuccessScreen() {
@@ -47,6 +47,16 @@ export default function RegistrationSuccessScreen() {
             <Text style={styles.infoIcon}>✓</Text>
             <Text style={styles.infoText}>{t('registration.readyToVote')}</Text>
           </View>
+        </View>
+
+        <View style={styles.emailConfirmCard}>
+          <View style={styles.emailIconContainer}>
+            <Mail size={24} color="#667eea" strokeWidth={2} />
+          </View>
+          <Text style={styles.emailTitle}>Confirm Your Email</Text>
+          <Text style={styles.emailText}>
+            We've sent a confirmation link to your email address. Please check your inbox and click the link to verify your email.
+          </Text>
         </View>
 
         <Pressable style={styles.button} onPress={handleContinue}>
@@ -155,6 +165,38 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     fontWeight: '600',
     flex: 1,
+  },
+  emailConfirmCard: {
+    backgroundColor: '#f0f4ff',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#667eea',
+    alignItems: 'center',
+  },
+  emailIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  emailTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emailText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   button: {
     backgroundColor: '#667eea',
