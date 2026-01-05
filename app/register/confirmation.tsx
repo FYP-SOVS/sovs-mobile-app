@@ -18,6 +18,7 @@ import {
   Languages,
   ArrowRight,
   CheckCircle,
+  AlertCircle,
 } from 'lucide-react-native';
 import { registerUser } from '@/services/auth';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -38,6 +39,7 @@ export default function ConfirmationScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollY = useRef(0);
   const isInitialLoad = useRef(true);
@@ -112,11 +114,14 @@ export default function ConfirmationScreen() {
   const handleCreateAccount = useCallback(async () => {
     // Validation
     if (!phoneNumber.trim()) {
-      Alert.alert(t('common.error'), 'Phone number is required');
+      const error = 'Phone number is required';
+      setErrorMessage(error);
+      Alert.alert(t('common.error'), error);
       return;
     }
 
     setIsCreating(true);
+    setErrorMessage(''); // Clear previous errors
 
     try {
       // Register user with Supabase Auth and add to users table
@@ -134,11 +139,15 @@ export default function ConfirmationScreen() {
         await AsyncStorage.removeItem(FORM_STORAGE_KEY);
         router.replace('/register/success');
       } else {
-        Alert.alert(t('common.error'), result.error || t('common.error'));
+        const error = result.error || t('common.error');
+        setErrorMessage(error);
+        Alert.alert(t('common.error'), error);
         setIsCreating(false);
       }
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('common.error'));
+      const errorMsg = error.message || t('common.error');
+      setErrorMessage(errorMsg);
+      Alert.alert(t('common.error'), errorMsg);
       setIsCreating(false);
     }
   }, [phoneNumber, email, userData, t, router]);
@@ -293,6 +302,14 @@ export default function ConfirmationScreen() {
               You will use one-time passwords (OTP) sent to your phone number to log in. No need to remember a password!
             </Text>
           </View>
+
+          {/* Error Display */}
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <AlertCircle size={20} color="#dc2626" strokeWidth={2} />
+              <Text style={styles.errorBoxText}>{errorMessage}</Text>
+            </View>
+          ) : null}
 
           <Pressable
             style={[styles.button, isCreating && styles.buttonDisabled]}
@@ -482,6 +499,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#2d5016',
+    lineHeight: 22,
+  },
+  errorBox: {
+    backgroundColor: '#fee2e2',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#dc2626',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  errorBoxText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#dc2626',
     lineHeight: 22,
   },
   button: {

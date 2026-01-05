@@ -1,5 +1,6 @@
 import { supabase, FUNCTIONS_BASE_URL } from './supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usersAPI } from '. /api';
 
 /**
  * Validate national_id exists in government_db before creating auth user
@@ -129,17 +130,24 @@ export async function registerUser(data: {
         }),
       });
 
+      const roleData = await registerVoterResponse.json();
+
       if (!registerVoterResponse.ok) {
-        const errorData = await registerVoterResponse.json();
-        console.error('Failed to assign voter role:', errorData);
-        // Don't fail the registration if role assignment fails, but log it
-      } else {
-        const roleData = await registerVoterResponse.json();
-        console.log('Voter role assigned successfully:', roleData);
+        console.error('Failed to assign voter role:', roleData);
+        // Return the specific error from register-voter
+        return { 
+          success: false, 
+          error: roleData.error || 'Failed to complete registration. Your national ID may not be valid.' 
+        };
       }
+      
+      console.log('Voter role assigned successfully:', roleData);
     } catch (roleError: any) {
       console.error('Error calling register-voter function:', roleError.message);
-      // Don't fail the registration if the cloud function call fails
+      return { 
+        success: false, 
+        error: roleError.message || 'Failed to complete registration. Please try again.' 
+      };
     }
 
     // User created/verified in Auth; register-voter handles DB insert + role assignment
