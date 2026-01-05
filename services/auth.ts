@@ -1,6 +1,6 @@
 import { supabase, FUNCTIONS_BASE_URL } from './supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { usersAPI } from '. /api';
+import { usersAPI } from './api';
 
 /**
  * Validate national_id exists in government_db before creating auth user
