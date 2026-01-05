@@ -375,16 +375,18 @@ export default function IdentityVerificationScreen() {
         setIsCreatingSession(false);
         setIsVerifying(false);
         setStatusMessage('You are already verified.');
-        const result = session.decision || (await getDiditSessionResults(newSessionId));
+
+        // Always fetch structured results so user_data is populated
+        const result = await getDiditSessionResults(newSessionId);
         const userData = (result as any).user_data || {};
 
         router.push({
           pathname: '/register/confirmation',
           params: {
             sessionId: newSessionId,
-            firstName: userData.first_name,
-            lastName: userData.last_name,
-            dateOfBirth: userData.date_of_birth,
+            firstName: userData.first_name || '',
+            lastName: userData.last_name || '',
+            dateOfBirth: userData.date_of_birth || '',
             documentNumber: userData.document_number || '',
             phoneNumber,
             email,
