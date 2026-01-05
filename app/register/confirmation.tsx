@@ -58,7 +58,12 @@ export default function ConfirmationScreen() {
           } else {
             // Clear old data if sessionId doesn't match
             await AsyncStorage.removeItem(FORM_STORAGE_KEY);
+            setPhoneNumber((params.phoneNumber as string) || '');
+            setEmail((params.email as string) || '');
           }
+        } else {
+          setPhoneNumber((params.phoneNumber as string) || '');
+          setEmail((params.email as string) || '');
         }
       } catch (error) {
         // Ignore errors, just start with empty form

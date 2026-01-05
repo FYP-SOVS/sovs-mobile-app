@@ -142,16 +142,25 @@ export const governmentDBAPI = {
  */
 export const diditSessionAPI = {
   /**
-   * Create a Didit verification session
+   * Create or resume a Didit verification session
    */
-  create: async (vendorData?: string, metadata?: any, language?: string, returnTo?: string) => {
-    return callFunction('didit-create-session', {
+  create: async (params: {
+    email: string;
+    phoneNumber: string;
+    vendorData?: string;
+    metadata?: any;
+    language?: string;
+    returnTo?: string;
+  }) => {
+    return callFunction('didit-session', {
       method: 'POST',
       body: {
-        vendor_data: vendorData,
-        metadata: metadata,
-        language: language,
-        return_to: returnTo,
+        email: params.email,
+        phone_number: params.phoneNumber,
+        vendor_data: params.vendorData,
+        metadata: params.metadata,
+        language: params.language,
+        return_to: params.returnTo,
       },
     });
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView, Platform, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -81,6 +81,9 @@ export default function IdentityVerificationScreen() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // Restore verification session if it exists (for page reloads after DIDIT callback)
   useEffect(() => {
@@ -89,9 +92,11 @@ export default function IdentityVerificationScreen() {
         console.log('[DIDIT] Checking for saved session...');
         const savedSession = await storage.getItem(DIDIT_SESSION_KEY);
         if (savedSession) {
-          const { sessionId: savedSessionId } = JSON.parse(savedSession);
+          const { sessionId: savedSessionId, phoneNumber: savedPhone, email: savedEmail } = JSON.parse(savedSession);
           if (savedSessionId) {
             console.log('[DIDIT] Restored DIDIT session from storage:', savedSessionId);
+            if (savedPhone) setPhoneNumber(savedPhone);
+            if (savedEmail) setEmail(savedEmail);
             setSessionId(savedSessionId);
             setIsVerifying(true);
             
@@ -135,6 +140,8 @@ export default function IdentityVerificationScreen() {
                 lastName: userData.last_name,
                 dateOfBirth: userData.date_of_birth,
                 documentNumber: userData.document_number || '',
+                phoneNumber,
+                email,
                 diditData: JSON.stringify(result),
               },
             });
@@ -156,7 +163,7 @@ export default function IdentityVerificationScreen() {
       console.log('[DIDIT] Found session_id in URL params:', sessionIdFromParams);
       processSessionCallback(sessionIdFromParams);
     }
-  }, [params.session_id, sessionId]);
+  }, [params.session_id, sessionId, phoneNumber, email]);
 
   // Start polling when sessionId is set (from restoration or new verification)
   useEffect(() => {
@@ -169,6 +176,24 @@ export default function IdentityVerificationScreen() {
           const result = await getDiditSessionResults(sessionId);
           const status = result.status || result.decision_status;
           
+          if (status === 'In Review') {
+            if (pollingInterval) {
+              clearInterval(pollingInterval);
+              setPollingInterval(null);
+            }
+
+            try {
+              await storage.removeItem(DIDIT_SESSION_KEY);
+            } catch (error) {
+              console.error('[DIDIT] Error clearing session:', error);
+            }
+
+            setStatusMessage('Your verification is pending manual review. Please check back later.');
+            setIsVerifying(false);
+            setSessionId(null);
+            return;
+          }
+
           if (status === 'Approved' || status === 'Declined') {
             if (pollingInterval) {
               clearInterval(pollingInterval);
@@ -211,6 +236,8 @@ export default function IdentityVerificationScreen() {
                   lastName: userData.last_name,
                   dateOfBirth: userData.date_of_birth,
                   documentNumber: userData.document_number || '',
+                  phoneNumber,
+                  email,
                   diditData: JSON.stringify(result),
                 },
               });
@@ -244,7 +271,7 @@ export default function IdentityVerificationScreen() {
         if (interval) clearInterval(interval);
       };
     }
-  }, [sessionId, isVerifying]);
+  }, [sessionId, isVerifying, phoneNumber, email]);
   useEffect(() => {
     const handleUrl = async (event: { url: string }) => {
       const url = new URL(event.url);
@@ -278,73 +305,106 @@ export default function IdentityVerificationScreen() {
     };
   }, [pollingInterval]);
 
+  const openDiditWindow = async (url?: string, returnUrl?: string) => {
+    if (!url) {
+      Alert.alert(t('common.error'), 'Verification link is missing. Please try again.');
+      setIsVerifying(false);
+      return;
+    }
+
+    if (Platform.OS === 'web' || typeof window !== 'undefined') {
+      const diditWindow = window.open(url, '_blank');
+      if (!diditWindow) {
+        Alert.alert(t('common.error'), 'Please allow popups for this site to continue with verification');
+        setIsVerifying(false);
+        await storage.removeItem(DIDIT_SESSION_KEY);
+      }
+    } else {
+      const result = await WebBrowser.openAuthSessionAsync(url, returnUrl || '');
+      if (result.type === 'cancel' || result.type === 'dismiss') {
+        setIsVerifying(false);
+        try {
+          await storage.removeItem(DIDIT_SESSION_KEY);
+        } catch (error) {
+          console.error('[DIDIT] Error clearing session:', error);
+        }
+      }
+    }
+  };
+
   const handleStartVerification = async () => {
     try {
+      if (!phoneNumber.trim() || !email.trim()) {
+        Alert.alert(t('common.error'), 'Please enter your phone number and email to continue.');
+        return;
+      }
+
       setIsCreatingSession(true);
+      setStatusMessage(null);
+
       const returnUrl = Linking.createURL('/register/identity');
-      console.log('[DIDIT] Creating session with returnUrl:', returnUrl);
+      console.log('[DIDIT] Creating/resuming session with returnUrl:', returnUrl);
       
-      // Create Didit session
-      const session = await createDiditSession(
-        undefined, // vendor_data - can be user ID if available
-        null, // metadata
-        language === 'tr' ? 'tr' : 'en', // language
-        returnUrl
-      );
+      const session = await createDiditSession({
+        email: email.trim(),
+        phoneNumber: phoneNumber.trim(),
+        vendorData: undefined,
+        metadata: null,
+        language: language === 'tr' ? 'tr' : 'en',
+        returnTo: returnUrl,
+      });
 
-      if (!session.success || !session.url) {
-        throw new Error('Failed to create verification session');
+      const normalizedStatus = session.status || session.decision_status;
+      const newSessionId = session.session_id;
+
+      if (!newSessionId) {
+        throw new Error('Failed to obtain session id');
       }
 
-      const sessionId = session.session_id;
-      console.log('[DIDIT] Session created with ID:', sessionId);
-      
-      // Save session to storage so it persists across page reloads
+      // Persist session locally to resume polling
       try {
-        const sessionData = JSON.stringify({ sessionId, createdAt: Date.now() });
-        console.log('[DIDIT] About to save to storage:', sessionData);
+        const sessionData = JSON.stringify({ sessionId: newSessionId, phoneNumber, email, createdAt: Date.now() });
         await storage.setItem(DIDIT_SESSION_KEY, sessionData);
-        console.log('[DIDIT] Session saved successfully');
-      } catch (error) {
-        console.error('[DIDIT] Error saving session:', error);
+      } catch (err) {
+        console.error('[DIDIT] Error saving session locally', err);
       }
-      
-      setSessionId(sessionId);
+
+      setSessionId(newSessionId);
+
+      if (normalizedStatus === 'Approved') {
+        setIsCreatingSession(false);
+        setIsVerifying(false);
+        setStatusMessage('You are already verified.');
+        const result = session.decision || (await getDiditSessionResults(newSessionId));
+        const userData = (result as any).user_data || {};
+
+        router.push({
+          pathname: '/register/confirmation',
+          params: {
+            sessionId: newSessionId,
+            firstName: userData.first_name,
+            lastName: userData.last_name,
+            dateOfBirth: userData.date_of_birth,
+            documentNumber: userData.document_number || '',
+            phoneNumber,
+            email,
+            diditData: JSON.stringify(result),
+          },
+        });
+        return;
+      }
+
+      if (normalizedStatus === 'In Review') {
+        setIsCreatingSession(false);
+        setIsVerifying(false);
+        setStatusMessage('Your verification is pending manual review. Please check back later.');
+        return;
+      }
+
       setIsCreatingSession(false);
       setIsVerifying(true);
 
-      // Open Didit verification URL
-      // For web, open in a new window/tab so the current page stays loaded and can handle the redirect back
-      // For mobile, use WebBrowser which will open in a browser and return via deep link
-      if (Platform.OS === 'web' || typeof window !== 'undefined') {
-        // On web, open DIDIT in a new window
-        const diditWindow = window.open(session.url, '_blank');
-        if (!diditWindow) {
-          Alert.alert(
-            t('common.error'),
-            'Please allow popups for this site to continue with verification',
-          );
-          setIsVerifying(false);
-          await storage.removeItem(DIDIT_SESSION_KEY);
-        }
-        // The polling effect will handle checking the status
-        // When DIDIT redirects back, it will reload this page with the session restored from localStorage
-      } else {
-        // On mobile, open in browser and expect to return via deep link
-        const result = await WebBrowser.openAuthSessionAsync(session.url, returnUrl);
-
-        // If the user cancels the auth session, stop verifying so they can retry
-        if (result.type === 'cancel' || result.type === 'dismiss') {
-          setIsVerifying(false);
-          // Clear saved session
-          try {
-            await storage.removeItem(DIDIT_SESSION_KEY);
-          } catch (error) {
-            console.error('[DIDIT] Error clearing session:', error);
-          }
-          return;
-        }
-      }
+      await openDiditWindow((session as any).session_url || (session as any).url, returnUrl);
     } catch (error: any) {
       setIsCreatingSession(false);
       setIsVerifying(false);
@@ -389,6 +449,9 @@ export default function IdentityVerificationScreen() {
             {'\n'}
             Please complete the verification in the browser window.
           </Text>
+          {statusMessage ? (
+            <Text style={styles.statusMessage}>{statusMessage}</Text>
+          ) : null}
         </ScrollView>
       </View>
     );
@@ -425,6 +488,35 @@ export default function IdentityVerificationScreen() {
           Click the button below to start the identity verification process. You'll be asked to:
         </Text>
 
+        <View style={styles.formCard}>
+          <Text style={styles.formLabel}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your phone number"
+            placeholderTextColor="#999"
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+          />
+
+          <Text style={[styles.formLabel, { marginTop: 16 }]}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+
+        {statusMessage && !isVerifying ? (
+          <Text style={styles.statusMessage}>{statusMessage}</Text>
+        ) : null}
+
         <View style={styles.stepsList}>
           <View style={styles.stepItem}>
             <Text style={styles.stepNumber}>1</Text>
@@ -443,7 +535,7 @@ export default function IdentityVerificationScreen() {
         <Pressable
           style={[styles.button, (isCreatingSession || isVerifying) && styles.buttonDisabled]}
           onPress={handleStartVerification}
-          disabled={isCreatingSession || isVerifying}
+          disabled={isCreatingSession || isVerifying || !phoneNumber.trim() || !email.trim()}
         >
           {isCreatingSession ? (
             <ActivityIndicator color="#fff" />
@@ -541,6 +633,30 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: SCREEN_WIDTH < 375 ? 8 : 0,
   },
+  formCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: SCREEN_WIDTH < 375 ? 16 : 20,
+    marginBottom: SCREEN_WIDTH < 375 ? 20 : 24,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+  },
   stepsList: {
     width: '100%',
     marginBottom: SCREEN_WIDTH < 375 ? 32 : 40,
@@ -633,5 +749,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: SCREEN_WIDTH < 375 ? 16 : 0,
+  },
+  statusMessage: {
+    marginTop: 16,
+    fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
+    color: '#1a1a1a',
+    textAlign: 'center',
   },
 });
