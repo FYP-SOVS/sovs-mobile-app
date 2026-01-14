@@ -125,7 +125,12 @@ export default function GovernmentDataScreen() {
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>{t('registration.step2')}</Text>
             </View>
-            <Pressable style={styles.languageButton} onPress={toggleLanguage}>
+            <Pressable
+  testID="language-toggle"
+  accessibilityRole="button"
+  style={styles.languageButton}
+  onPress={toggleLanguage}
+>
               <Languages size={20} color="#667eea" strokeWidth={2} />
             </Pressable>
           </View>

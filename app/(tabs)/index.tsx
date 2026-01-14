@@ -29,7 +29,12 @@ export default function DashboardScreen() {
             <Text style={styles.subWelcomeText}>{t('dashboard.secureVotingSystem')}</Text>
           </View>
         </View>
-        <Pressable onPress={handleLogout} style={styles.logoutButton}>
+<Pressable
+  onPress={handleLogout}
+  accessibilityRole="button"
+  testID="logout-button"
+>
+
           <LogOut size={20} color="#667eea" strokeWidth={2} />
         </Pressable>
       </View>

@@ -369,7 +369,7 @@ export default function IdentityVerificationScreen() {
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>{t('registration.step1')}</Text>
             </View>
-            <Pressable style={styles.languageButton} onPress={toggleLanguage}>
+            <Pressable style={styles.languageButton} onPress={toggleLanguage} testID="language-button">
               <Languages size={20} color="#667eea" strokeWidth={2} />
             </Pressable>
           </View>
@@ -401,7 +401,7 @@ export default function IdentityVerificationScreen() {
           <View style={styles.stepBadge}>
             <Text style={styles.stepBadgeText}>{t('registration.step1')}</Text>
           </View>
-          <Pressable style={styles.languageButton} onPress={toggleLanguage}>
+          <Pressable style={styles.languageButton} onPress={toggleLanguage}  testID="language-toggle">
             <Languages size={20} color="#667eea" strokeWidth={2} />
           </Pressable>
         </View>

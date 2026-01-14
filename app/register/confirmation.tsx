@@ -196,9 +196,15 @@ export default function ConfirmationScreen() {
                 {t('registration.step2')}
               </Text>
             </View>
-            <Pressable style={styles.languageButton} onPress={toggleLanguage}>
-              <Languages size={20} color="#667eea" strokeWidth={2} />
-            </Pressable>
+<Pressable
+  testID="language-toggle"
+  accessibilityRole="button"
+  style={styles.languageButton}
+  onPress={toggleLanguage}
+>
+  <Languages size={20} color="#667eea" strokeWidth={2} />
+</Pressable>
+
           </View>
           <Text style={styles.title}>Confirm Your Information</Text>
           <Text style={styles.subtitle}>

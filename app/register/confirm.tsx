@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, ScrollView, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, User, Calendar, Phone, Mail, Shield, Sparkles, Languages } from 'lucide-react-native';
 import { registerUser } from '@/services/auth';
@@ -64,7 +64,7 @@ export default function ConfirmRegistrationScreen() {
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>{t('registration.step3')}</Text>
             </View>
-            <Pressable style={styles.languageButton} onPress={toggleLanguage}>
+            <Pressable style={styles.languageButton} onPress={toggleLanguage}   accessibilityRole="button">
               <Languages size={20} color="#667eea" strokeWidth={2} />
             </Pressable>
           </View>
