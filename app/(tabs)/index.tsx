@@ -1,92 +1,134 @@
-import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { Shield, CheckCircle2, Clock, AlertCircle, LogOut } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTranslation } from '@/contexts/LanguageContext';
+import { Shield, LogOut, Calendar, ChevronRight, Clock, AlertCircle } from 'lucide-react-native';
+import { signOut } from '@/services/auth';
+import { electionsAPI, Election } from '@/services/elections';
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const [elections, setElections] = useState<Election[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchElections = useCallback(async () => {
+    try {
+      setError('');
+      const data = await electionsAPI.list(false); // fetch all elections
+      setElections(data);
+    } catch (e: any) {
+      setError('Could not load elections. Please try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchElections();
+  }, [fetchElections]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchElections();
+  };
 
   const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('hasSeenOnboarding');
-      router.replace('/');
-    } catch (error) {
-      router.replace('/');
-    }
+    await signOut();
+    router.replace('/');
   };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const isUpcoming = (dateStr: string) => new Date(dateStr) >= new Date();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.iconCircle}>
-            <Shield size={32} color="#667eea" strokeWidth={2} />
+            <Shield size={28} color="#667eea" strokeWidth={2} />
           </View>
-          <View style={styles.headerText}>
-            <Text style={styles.welcomeText}>{t('dashboard.welcome')}</Text>
-            <Text style={styles.subWelcomeText}>{t('dashboard.secureVotingSystem')}</Text>
+          <View>
+            <Text style={styles.welcomeText}>SOVS</Text>
+            <Text style={styles.subWelcomeText}>Secure Online Voting</Text>
           </View>
         </View>
-<Pressable
-  onPress={handleLogout}
-  accessibilityRole="button"
-  testID="logout-button"
->
-
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <LogOut size={20} color="#667eea" strokeWidth={2} />
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.statusCard}>
-          <View style={styles.statusHeader}>
-            <CheckCircle2 size={24} color="#10b981" strokeWidth={2.5} />
-            <Text style={styles.statusTitle}>{t('dashboard.accountVerified')}</Text>
-          </View>
-          <Text style={styles.statusDescription}>
-            {t('dashboard.accountVerifiedDescription')}
-          </Text>
-        </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#667eea" />}
+      >
+        <Text style={styles.sectionTitle}>Elections</Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('dashboard.quickActions')}</Text>
-          
-          <View style={styles.actionCard}>
-            <View style={styles.actionIcon}>
-              <Clock size={24} color="#667eea" strokeWidth={2} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>{t('dashboard.upcomingElections')}</Text>
-              <Text style={styles.actionDescription}>{t('dashboard.noElectionsScheduled')}</Text>
-            </View>
+        {loading ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color="#667eea" />
+            <Text style={styles.loadingText}>Loading elections...</Text>
           </View>
-
-          <View style={styles.actionCard}>
-            <View style={styles.actionIcon}>
-              <Shield size={24} color="#667eea" strokeWidth={2} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>{t('dashboard.votingStatus')}</Text>
-              <Text style={styles.actionDescription}>{t('dashboard.accountReady')}</Text>
-            </View>
+        ) : error ? (
+          <View style={styles.errorCard}>
+            <AlertCircle size={20} color="#ef4444" strokeWidth={2} />
+            <Text style={styles.errorText}>{error}</Text>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('common.information')}</Text>
-          
-          <View style={styles.infoCard}>
-            <AlertCircle size={20} color="#f59e0b" strokeWidth={2} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>{t('dashboard.votingPeriod')}</Text>
-              <Text style={styles.infoText}>
-                {t('dashboard.votingPeriodDescription')}
-              </Text>
-            </View>
+        ) : elections.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Calendar size={40} color="#c7d2fe" strokeWidth={1.5} />
+            <Text style={styles.emptyTitle}>No Elections Yet</Text>
+            <Text style={styles.emptySubtitle}>Elections will appear here once scheduled</Text>
           </View>
-        </View>
+        ) : (
+          elections.map((election) => (
+            <Pressable
+              key={election.election_id}
+              style={styles.electionCard}
+              onPress={() => router.push(`/election/${election.election_id}`)}
+            >
+              <View style={styles.electionIconWrapper}>
+                <Calendar size={22} color="#667eea" strokeWidth={2} />
+              </View>
+              <View style={styles.electionContent}>
+                <Text style={styles.electionTitle} numberOfLines={2}>{election.title}</Text>
+                <View style={styles.electionMeta}>
+                  <Clock size={13} color="#999" strokeWidth={2} />
+                  <Text style={styles.electionDate}>{formatDate(election.election_date)}</Text>
+                </View>
+                {isUpcoming(election.election_date) ? (
+                  <View style={styles.upcomingBadge}>
+                    <Text style={styles.upcomingBadgeText}>Upcoming</Text>
+                  </View>
+                ) : (
+                  <View style={styles.pastBadge}>
+                    <Text style={styles.pastBadgeText}>Past</Text>
+                  </View>
+                )}
+              </View>
+              <ChevronRight size={20} color="#c7d2fe" strokeWidth={2} />
+            </Pressable>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -111,32 +153,28 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    gap: 14,
   },
   iconCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#f0f4ff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
     borderWidth: 2,
     borderColor: '#667eea',
   },
-  headerText: {
-    flex: 1,
-  },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#1a1a1a',
     letterSpacing: -0.5,
   },
   subWelcomeText: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
+    fontSize: 13,
+    color: '#888',
+    marginTop: 1,
   },
   logoutButton: {
     width: 40,
@@ -148,98 +186,127 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 24,
-  },
-  statusCard: {
-    backgroundColor: '#f0fdf4',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: '#10b981',
-  },
-  statusHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  statusTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#065f46',
-    marginLeft: 12,
-  },
-  statusDescription: {
-    fontSize: 14,
-    color: '#047857',
-    lineHeight: 20,
-  },
-  section: {
-    marginBottom: 32,
+    paddingBottom: 40,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 16,
   },
-  actionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 12,
+  centered: {
+    alignItems: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  loadingText: {
+    color: '#888',
+    fontSize: 15,
+  },
+  errorCard: {
+    backgroundColor: '#fef2f2',
+    borderRadius: 14,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    flex: 1,
+  },
+  emptyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 40,
+    alignItems: 'center',
+    gap: 12,
     borderWidth: 1,
     borderColor: '#f0f0f0',
   },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+  },
+  electionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  electionIconWrapper: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: '#f0f4ff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    flexShrink: 0,
   },
-  actionContent: {
+  electionContent: {
     flex: 1,
+    gap: 4,
   },
-  actionTitle: {
+  electionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginBottom: 4,
+    lineHeight: 22,
   },
-  actionDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  infoCard: {
-    backgroundColor: '#fffbeb',
-    borderRadius: 16,
-    padding: 16,
+  electionMeta: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#fde68a',
+    alignItems: 'center',
+    gap: 4,
   },
-  infoContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#92400e',
-    marginBottom: 4,
-  },
-  infoText: {
+  electionDate: {
     fontSize: 13,
-    color: '#78350f',
-    lineHeight: 18,
+    color: '#888',
+  },
+  upcomingBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#f0fdf4',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#86efac',
+  },
+  upcomingBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#16a34a',
+  },
+  pastBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#f9fafb',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  pastBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#9ca3af',
   },
 });

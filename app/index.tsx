@@ -36,6 +36,11 @@ export default function WelcomeScreen() {
               <Text style={styles.primaryButtonText}>{t('welcome.getStarted')}</Text>
             </Pressable>
           </Link>
+          <Link href="/login" asChild>
+            <Pressable style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>Sign In with OTP</Text>
+            </Pressable>
+          </Link>
         </View>
       </View>
     </View>
