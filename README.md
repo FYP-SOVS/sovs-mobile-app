@@ -22,11 +22,12 @@ A comprehensive mobile application for secure online voting with identity verifi
 
 ## 🎯 Overview
 
-SOVS (Secure Online Voting System) is a mobile application designed to enable secure, verified online voting. The app implements a robust identity verification system using government databases and third-party verification services (Didit) to ensure only legitimate voters can participate in elections.
+SOVS (Secure Online Voting System) is a mobile application designed to enable secure, verified online voting—including **casting ballots on mobile**—alongside the SOVS web portal. The app implements a robust identity verification system using government databases and third-party verification services (Didit) to ensure only legitimate voters can participate in elections.
 
 ### Key Capabilities
 
-- **Identity Verification**: Multi-step verification process using government ID and biometric verification
+- **Identity Verification**: Multi-step verification process using government ID and biometric verification (registration is completed in the mobile app)
+- **Voting**: Cast votes in the app or on the web portal using the same verified account
 - **Secure Authentication**: OTP-based login system (phone/email)
 - **Multi-language Support**: English and Turkish
 - **Cross-platform**: iOS, Android, and Web support
@@ -59,11 +60,10 @@ SOVS (Secure Online Voting System) is a mobile application designed to enable se
    - Secure session management
    - Auto-logout functionality
 
-5. **Dashboard**
+5. **Dashboard & Voting**
    - Account status overview
    - Verification status display
-   - Quick actions
-   - Election information
+   - Election information and **in-app voting** (same account as the web portal)
 
 6. **Profile Management**
    - Personal information display
@@ -380,6 +380,11 @@ Supabase client configuration:
 4. System verifies OTP
 5. Session created → Dashboard
 ```
+
+### Voting (verified voters)
+
+- Cast ballots **in the mobile app** during open elections, or use the **SOVS web portal** with the same account.
+- Registration remains **mobile-only**; voting is available on **web and mobile**.
 
 ### Session Management
 

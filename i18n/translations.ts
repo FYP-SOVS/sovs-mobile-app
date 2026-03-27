@@ -100,7 +100,7 @@ export const translations = {
       votingStatus: 'Voting Status',
       accountReady: 'Your account is ready for voting',
       votingPeriod: 'Voting Period',
-      votingPeriodDescription: 'Voting will be available during official election periods. You\'ll receive notifications when elections are open.',
+      votingPeriodDescription: 'When elections are open, you can vote here in the app or on the SOVS web portal—same account.',
     },
     // Profile
     profile: {
@@ -234,7 +234,7 @@ export const translations = {
       votingStatus: 'Oylama Durumu',
       accountReady: 'Hesabınız oylamaya hazır',
       votingPeriod: 'Oylama Dönemi',
-      votingPeriodDescription: 'Oylama resmi seçim dönemlerinde kullanılabilir olacaktır. Seçimler açıldığında bildirim alacaksınız.',
+      votingPeriodDescription: 'Seçimler açıldığında bu uyguladan veya SOVS web portalından oy kullanabilirsiniz—aynı hesap.',
     },
     // Profile
     profile: {

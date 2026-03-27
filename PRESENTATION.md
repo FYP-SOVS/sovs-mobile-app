@@ -5,7 +5,7 @@
 
 ## 🎯 Vision
 
-**SOVS** (Secure Online Voting System) is a cutting-edge mobile application designed to revolutionize democratic participation by enabling secure, verified, and accessible online voting. Our mission is to make voting more convenient while maintaining the highest standards of security, identity verification, and electoral integrity.
+**SOVS** (Secure Online Voting System) is a cutting-edge mobile application designed to revolutionize democratic participation by enabling secure, verified, and accessible online voting—**including casting ballots on iOS and Android** as well as on the web portal. Our mission is to make voting more convenient while maintaining the highest standards of security, identity verification, and electoral integrity.
 
 ---
 
@@ -57,6 +57,14 @@ A secure, three-step registration ensures data accuracy:
 - **Account Dashboard**: Comprehensive overview of voter status
 
 **Result**: Users always know their voting eligibility status.
+
+### 6. **Voting on Mobile and Web**
+
+- **One account**: Same verified voter account on the mobile app and the SOVS web portal
+- **Cast ballots in-app**: Vote on your phone or tablet after registration, without relying on a desktop browser
+- **Channel choice**: Users pick web or mobile based on convenience—eligibility and vote integrity are consistent across both
+
+**Result**: Registration stays mobile-first for strong identity proof; participation meets voters where they are.
 
 ---
 
