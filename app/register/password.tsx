@@ -168,25 +168,25 @@ export default function PasswordSetupScreen() {
   const handleCreateAccount = useCallback(async () => {
     // Validation
     if (!phoneNumber.trim()) {
-      Alert.alert(t('common.error'), 'Phone number is required');
+      Alert.alert(t('common.error'), t('registration.phoneRequired'));
       return;
     }
 
     if (!password.trim()) {
-      Alert.alert(t('common.error'), 'Password is required');
+      Alert.alert(t('common.error'), t('registration.passwordRequired'));
       return;
     }
 
     if (password.length < 8) {
       Alert.alert(
         t('common.error'),
-        'Password must be at least 8 characters long'
+        t('registration.passwordMinLength')
       );
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(t('common.error'), 'Passwords do not match');
+      Alert.alert(t('common.error'), t('registration.passwordsDoNotMatch'));
       return;
     }
 
@@ -209,14 +209,24 @@ export default function PasswordSetupScreen() {
         await AsyncStorage.removeItem(FORM_STORAGE_KEY);
         router.replace('/register/success');
       } else {
-        Alert.alert(t('common.error'), result.error || t('common.error'));
+        Alert.alert(
+          t('common.error'),
+          language === 'en'
+            ? result.error || t('common.somethingWentWrong')
+            : t('common.somethingWentWrong')
+        );
         setIsCreating(false);
       }
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('common.error'));
+      Alert.alert(
+        t('common.error'),
+        language === 'en'
+          ? error.message || t('common.somethingWentWrong')
+          : t('common.somethingWentWrong')
+      );
       setIsCreating(false);
     }
-  }, [phoneNumber, password, confirmPassword, email, userData, t, router]);
+  }, [phoneNumber, password, confirmPassword, email, userData, t, language, router]);
 
   const Container = Platform.OS === 'web' ? View : KeyboardAvoidingView;
   const containerProps =
@@ -275,9 +285,9 @@ export default function PasswordSetupScreen() {
               <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
             </Pressable>
           </View>
-          <Text style={styles.title}>Create Your Account</Text>
+          <Text style={styles.title}>{t('registration.createYourAccount')}</Text>
           <Text style={styles.subtitle}>
-            Set up your password and contact information
+            {t('registration.passwordSetupDescription')}
           </Text>
         </View>
 
@@ -287,19 +297,19 @@ export default function PasswordSetupScreen() {
               <View style={styles.cardHeaderIcon}>
                 <Lock size={24} color={theme.colors.navy} strokeWidth={2} />
               </View>
-              <Text style={styles.cardHeaderText}>Account Information</Text>
+              <Text style={styles.cardHeaderText}>{t('registration.accountInformation')}</Text>
             </View>
 
             <View style={styles.infoSection}>
               <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Name</Text>
+                <Text style={styles.fieldLabel}>{t('registration.name')}</Text>
                 <Text style={styles.fieldValue}>
                   {userData.firstName} {userData.lastName}
                 </Text>
               </View>
 
               <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Date of Birth</Text>
+                <Text style={styles.fieldLabel}>{t('registration.dateOfBirth')}</Text>
                 <Text style={styles.fieldValue}>
                   {new Date(userData.dateOfBirth).toLocaleDateString(
                     language === 'tr' ? 'tr-TR' : 'en-US',
@@ -315,10 +325,10 @@ export default function PasswordSetupScreen() {
           </View>
 
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Contact Information</Text>
+            <Text style={styles.formTitle}>{t('registration.contactInformation')}</Text>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Phone Number *</Text>
+              <Text style={styles.inputLabel}>{t('registration.phoneNumber')} *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="+1234567890"
@@ -335,7 +345,7 @@ export default function PasswordSetupScreen() {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Email (Optional)</Text>
+              <Text style={styles.inputLabel}>{t('registration.email')} {t('registration.optional')}</Text>
               <TextInput
                 style={styles.input}
                 placeholder="user@example.com"
@@ -354,14 +364,14 @@ export default function PasswordSetupScreen() {
           </View>
 
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Set Your Password</Text>
+            <Text style={styles.formTitle}>{t('registration.setYourPassword')}</Text>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Password *</Text>
+              <Text style={styles.inputLabel}>{t('registration.password')} *</Text>
               <View style={styles.passwordInputContainer}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Enter password (min 8 characters)"
+                  placeholder={t('registration.passwordPlaceholder')}
                   placeholderTextColor={theme.colors.textTertiary}
                   value={password}
                   onChangeText={(text) => setPassword(text)}
@@ -423,38 +433,38 @@ export default function PasswordSetupScreen() {
                     ]}
                   >
                     {passwordStrength <= 2
-                      ? 'Weak'
+                      ? t('registration.passwordWeak')
                       : passwordStrength === 3
-                      ? 'Fair'
-                      : 'Strong'}
+                      ? t('registration.passwordFair')
+                      : t('registration.passwordStrong')}
                   </Text>
                 </View>
               )}
 
               {/* Password Requirements */}
               <View style={styles.requirementsContainer}>
-                <Text style={styles.requirementsTitle}>Requirements:</Text>
+                <Text style={styles.requirementsTitle}>{t('registration.passwordRequirements')}</Text>
                 <PasswordRequirement
-                  label="At least 8 characters"
+                  label={t('registration.passwordRequirementLength')}
                   met={password.length >= 8}
                 />
                 <PasswordRequirement
-                  label="Mix of uppercase and lowercase"
+                  label={t('registration.passwordRequirementCase')}
                   met={/[a-z]/.test(password) && /[A-Z]/.test(password)}
                 />
                 <PasswordRequirement
-                  label="Contains numbers"
+                  label={t('registration.passwordRequirementNumber')}
                   met={/[0-9]/.test(password)}
                 />
                 <PasswordRequirement
-                  label="Contains special characters"
+                  label={t('registration.passwordRequirementSpecial')}
                   met={/[^a-zA-Z0-9]/.test(password)}
                 />
               </View>
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Confirm Password *</Text>
+              <Text style={styles.inputLabel}>{t('registration.confirmPassword')} *</Text>
               <View
                 style={[
                   styles.passwordInputContainer,
@@ -463,7 +473,7 @@ export default function PasswordSetupScreen() {
               >
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Confirm your password"
+                  placeholder={t('registration.confirmPasswordPlaceholder')}
                   placeholderTextColor={theme.colors.textTertiary}
                   value={confirmPassword}
                   onChangeText={(text) => setConfirmPassword(text)}
@@ -490,7 +500,7 @@ export default function PasswordSetupScreen() {
               {passwordMatchError && confirmPassword && (
                 <View style={styles.errorMessage}>
                   <AlertCircle size={16} color={theme.colors.danger} strokeWidth={2} />
-                  <Text style={styles.errorText}>Passwords do not match</Text>
+                  <Text style={styles.errorText}>{t('registration.passwordsDoNotMatch')}</Text>
                 </View>
               )}
             </View>
@@ -505,7 +515,7 @@ export default function PasswordSetupScreen() {
               <ActivityIndicator color={theme.colors.white} />
             ) : (
               <>
-                <Text style={styles.buttonText}>Create Account</Text>
+                <Text style={styles.buttonText}>{t('registration.createAccount')}</Text>
                 <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
               </>
             )}

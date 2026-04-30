@@ -78,7 +78,7 @@ describe('ProfileScreen', () => {
 
     await waitFor(() => {
       expect(getByTestId('profile-full-name')).toHaveTextContent('John Doe');
-      expect(getByText('VOTER')).toBeTruthy();
+      expect(getByText('profile.roleVoter')).toBeTruthy();
       expect(getByText('1234567890')).toBeTruthy();
       expect(getByText('john@example.com')).toBeTruthy();
       expect(getByText('profile.verified')).toBeTruthy();
@@ -91,8 +91,8 @@ describe('ProfileScreen', () => {
     const { getByText } = render(<ProfileScreen />);
 
     await waitFor(() => {
-      expect(getByText('No user data found')).toBeTruthy();
-      expect(getByText('Retry')).toBeTruthy();
+      expect(getByText('profile.noUserData')).toBeTruthy();
+      expect(getByText('common.retry')).toBeTruthy();
     });
   });
 

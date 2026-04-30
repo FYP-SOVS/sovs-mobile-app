@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
           </Link>
           <Link href={'/login' as any} asChild>
             <Pressable style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>Sign In with OTP</Text>
+              <Text style={styles.secondaryButtonText}>{t('registration.signInWithOtp')}</Text>
             </Pressable>
           </Link>
         </View>

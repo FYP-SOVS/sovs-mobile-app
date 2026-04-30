@@ -60,7 +60,7 @@ describe('ConfirmationScreen', () => {
   it('renders confirmation screen', () => {
     const { getByText } = render(<ConfirmationScreen />);
 
-    expect(getByText('Confirm Your Information')).toBeTruthy();
+    expect(getByText('registration.confirmYourInformation')).toBeTruthy();
   });
 
   it('toggles language when language button is pressed', () => {
@@ -72,11 +72,11 @@ describe('ConfirmationScreen', () => {
   it('shows error if phone number is empty', () => {
     const { getByText } = render(<ConfirmationScreen />);
 
-    fireEvent.press(getByText('Complete Registration'));
+    fireEvent.press(getByText('registration.completeRegistration'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
       'common.error',
-      'Phone number is required'
+      'registration.phoneRequired'
     );
   });
 
@@ -92,7 +92,7 @@ describe('ConfirmationScreen', () => {
       '5551234567'
     );
 
-    fireEvent.press(getByText('Complete Registration'));
+    fireEvent.press(getByText('registration.completeRegistration'));
 
     await waitFor(() => {
       expect(getRouterMock()).toHaveBeenCalledWith('/register/success');
@@ -111,7 +111,7 @@ describe('ConfirmationScreen', () => {
       '5551234567'
     );
 
-    fireEvent.press(getByText('Complete Registration'));
+    fireEvent.press(getByText('registration.completeRegistration'));
 
     await waitFor(() => {
       expect(AsyncStorage.removeItem).toHaveBeenCalledWith(

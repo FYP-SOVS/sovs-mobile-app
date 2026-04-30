@@ -1,8 +1,11 @@
 import { Tabs } from 'expo-router';
 import { theme } from '@/theme';
 import { Home, User } from 'lucide-react-native';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -28,14 +31,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabs.home'),
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
         }}
       />

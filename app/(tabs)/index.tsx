@@ -12,11 +12,13 @@ import {
 import { useRouter } from 'expo-router';
 import { Shield, LogOut, Calendar, ChevronRight, Clock, AlertCircle } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from '@/contexts/LanguageContext';
 import { signOut } from '@/services/auth';
 import { electionsAPI, Election } from '@/services/elections';
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { t, language } = useTranslation();
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -29,12 +31,12 @@ export default function DashboardScreen() {
       const data = await electionsAPI.list(false); // fetch all elections
       setElections(data);
     } catch (e: any) {
-      setError('Could not load elections. Please try again.');
+      setError(t('dashboard.loadElectionsError'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchElections();
@@ -62,7 +64,7 @@ export default function DashboardScreen() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
       weekday: 'short',
       year: 'numeric',
       month: 'long',
@@ -81,7 +83,7 @@ export default function DashboardScreen() {
           </View>
           <View>
             <Text style={styles.welcomeText}>SOVS</Text>
-            <Text style={styles.subWelcomeText}>Secure Online Voting</Text>
+            <Text style={styles.subWelcomeText}>{t('dashboard.secureVotingShort')}</Text>
           </View>
         </View>
         <Pressable
@@ -104,12 +106,12 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.colors.navy} />}
       >
-        <Text style={styles.sectionTitle}>Elections</Text>
+        <Text style={styles.sectionTitle}>{t('dashboard.elections')}</Text>
 
         {loading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color={theme.colors.navy} />
-            <Text style={styles.loadingText}>Loading elections...</Text>
+            <Text style={styles.loadingText}>{t('dashboard.loadingElections')}</Text>
           </View>
         ) : error ? (
           <View style={styles.errorCard}>
@@ -119,8 +121,8 @@ export default function DashboardScreen() {
         ) : elections.length === 0 ? (
           <View style={styles.emptyCard}>
             <Calendar size={40} color={theme.colors.borderStrong} strokeWidth={1.5} />
-            <Text style={styles.emptyTitle}>No Elections Yet</Text>
-            <Text style={styles.emptySubtitle}>Elections will appear here once scheduled</Text>
+            <Text style={styles.emptyTitle}>{t('dashboard.noElectionsYet')}</Text>
+            <Text style={styles.emptySubtitle}>{t('dashboard.electionsWillAppear')}</Text>
           </View>
         ) : (
           elections.map((election) => (
@@ -143,11 +145,11 @@ export default function DashboardScreen() {
                 </View>
                 {isUpcoming(election.election_date) ? (
                   <View style={styles.upcomingBadge}>
-                    <Text style={styles.upcomingBadgeText}>Upcoming</Text>
+                    <Text style={styles.upcomingBadgeText}>{t('dashboard.upcoming')}</Text>
                   </View>
                 ) : (
                   <View style={styles.pastBadge}>
-                    <Text style={styles.pastBadgeText}>Past</Text>
+                    <Text style={styles.pastBadgeText}>{t('dashboard.past')}</Text>
                   </View>
                 )}
               </View>

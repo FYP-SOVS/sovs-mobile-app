@@ -20,17 +20,17 @@ export default function EmailVerifiedScreen() {
           <CheckCircle size={80} color={theme.colors.success} strokeWidth={1.5} />
         </View>
 
-        <Text style={styles.title}>Email Verified!</Text>
+        <Text style={styles.title}>{t('registration.emailVerifiedTitle')}</Text>
         
         <Text style={styles.message}>
-          Your email has been successfully verified. You can now proceed with your registration.
+          {t('registration.emailVerifiedMessage')}
         </Text>
 
         <Pressable 
           style={styles.button}
           onPress={handleContinue}
         >
-          <Text style={styles.buttonText}>Continue Registration</Text>
+          <Text style={styles.buttonText}>{t('registration.continueRegistration')}</Text>
           <ArrowRight size={20} color={theme.colors.white} style={{ marginLeft: 8 }} />
         </Pressable>
 
@@ -38,7 +38,7 @@ export default function EmailVerifiedScreen() {
           style={styles.secondaryButton}
           onPress={() => router.push('/')}
         >
-          <Text style={styles.secondaryButtonText}>Back to Home</Text>
+          <Text style={styles.secondaryButtonText}>{t('registration.backToHome')}</Text>
         </Pressable>
       </View>
     </View>

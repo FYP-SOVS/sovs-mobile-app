@@ -16,6 +16,7 @@ jest.mock('expo-router', () => ({
 jest.mock('@/contexts/LanguageContext', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
+    language: 'en',
   }),
 }));
 

@@ -32,6 +32,12 @@ jest.mock('lucide-react-native', () => ({
   User: () => null,
 }));
 
+jest.mock('@/contexts/LanguageContext', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 describe('TabsLayout (unit-testable cases)', () => {
   it('renders Home and Profile tabs', () => {
     /**
@@ -45,13 +51,13 @@ describe('TabsLayout (unit-testable cases)', () => {
      * TC-02: Home tab is registered
      * Verifies that a Tabs.Screen exists with title "Home"
      */
-    expect(getByText('Home')).toBeTruthy();
+    expect(getByText('tabs.home')).toBeTruthy();
 
     /**
      * TC-03: Profile tab is registered
      * Verifies that a Tabs.Screen exists with title "Profile"
      */
-    expect(getByText('Profile')).toBeTruthy();
+    expect(getByText('tabs.profile')).toBeTruthy();
 
     /**
      * TC-04: Tab titles are correct

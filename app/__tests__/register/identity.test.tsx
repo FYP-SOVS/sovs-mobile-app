@@ -60,7 +60,7 @@ describe('IdentityVerificationScreen', () => {
     const { getByText } = render(<IdentityVerificationScreen />);
 
     expect(getByText('registration.identityVerification')).toBeTruthy();
-    expect(getByText('Start Verification')).toBeTruthy();
+    expect(getByText('registration.startVerification')).toBeTruthy();
   });
 
   it('toggles language when language button is pressed', () => {
@@ -83,16 +83,16 @@ describe('IdentityVerificationScreen', () => {
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter your phone number'),
+      getByPlaceholderText('registration.phonePlaceholder'),
       '1234567890'
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter your email'),
+      getByPlaceholderText('registration.emailPlaceholder'),
       'test@example.com'
     );
 
-    fireEvent.press(getByText('Start Verification'));
+    fireEvent.press(getByText('registration.startVerification'));
 
     await waitFor(() => {
       expect(createDiditSession).toHaveBeenCalledTimes(1);
@@ -111,16 +111,16 @@ describe('IdentityVerificationScreen', () => {
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter your phone number'),
+      getByPlaceholderText('registration.phonePlaceholder'),
       '1234567890'
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter your email'),
+      getByPlaceholderText('registration.emailPlaceholder'),
       'test@example.com'
     );
 
-    fireEvent.press(getByText('Start Verification'));
+    fireEvent.press(getByText('registration.startVerification'));
 
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalled();

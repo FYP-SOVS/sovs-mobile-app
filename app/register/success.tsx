@@ -54,9 +54,9 @@ export default function RegistrationSuccessScreen() {
           <View style={styles.emailIconContainer}>
             <Mail size={24} color={theme.colors.navy} strokeWidth={2} />
           </View>
-          <Text style={styles.emailTitle}>Confirm Your Email</Text>
+          <Text style={styles.emailTitle}>{t('registration.confirmYourEmail')}</Text>
           <Text style={styles.emailText}>
-            We've sent a confirmation link to your email address. Please check your inbox and click the link to verify your email.
+            {t('registration.confirmEmailDescription')}
           </Text>
         </View>
 

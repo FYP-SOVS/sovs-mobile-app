@@ -22,11 +22,13 @@ import {
   AlertCircle,
 } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { useTranslation } from '@/contexts/LanguageContext';
 import { candidatesAPI, Candidate } from '@/services/elections';
 
 export default function CandidateScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t, language } = useTranslation();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,11 +41,11 @@ export default function CandidateScreen() {
       const data = await candidatesAPI.getById(id);
       setCandidate(data);
     } catch (e: any) {
-      setError('Could not load candidate details. Please try again.');
+      setError(t('candidate.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     fetchCandidate();
@@ -51,7 +53,7 @@ export default function CandidateScreen() {
 
   const handleDownloadManifesto = async () => {
     if (!candidate?.manifesto) {
-      Alert.alert('No Manifesto', 'This candidate has not uploaded a manifesto.');
+      Alert.alert(t('candidate.noManifestoTitle'), t('candidate.noManifestoMessage'));
       return;
     }
     setDownloading(true);
@@ -65,7 +67,7 @@ export default function CandidateScreen() {
       try {
         await Linking.openURL(candidate.manifesto);
       } catch {
-        Alert.alert('Error', 'Could not open the manifesto. Please try again.');
+        Alert.alert(t('common.error'), t('candidate.openManifestoError'));
       }
     } finally {
       setDownloading(false);
@@ -73,8 +75,8 @@ export default function CandidateScreen() {
   };
 
   const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return 'Not provided';
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    if (!dateStr) return t('common.notProvided');
+    return new Date(dateStr).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -85,7 +87,7 @@ export default function CandidateScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={theme.colors.navy} />
-        <Text style={styles.loadingText}>Loading candidate...</Text>
+        <Text style={styles.loadingText}>{t('candidate.loading')}</Text>
       </View>
     );
   }
@@ -100,10 +102,10 @@ export default function CandidateScreen() {
         </View>
         <View style={styles.centered}>
           <AlertCircle size={40} color={theme.colors.danger} strokeWidth={1.5} />
-          <Text style={styles.errorTitle}>Failed to load</Text>
+          <Text style={styles.errorTitle}>{t('common.failedToLoad')}</Text>
           <Text style={styles.errorSubtitle}>{error}</Text>
           <Pressable style={styles.retryButton} onPress={fetchCandidate}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
           </Pressable>
         </View>
       </View>
@@ -119,7 +121,7 @@ export default function CandidateScreen() {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <ArrowLeft size={22} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
-        <Text style={styles.headerTitle}>Candidate</Text>
+        <Text style={styles.headerTitle}>{t('candidate.title')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -132,19 +134,19 @@ export default function CandidateScreen() {
           <Text style={styles.candidateName}>
             {candidate.name} {candidate.surname}
           </Text>
-          <Text style={styles.candidateRole}>Candidate</Text>
+          <Text style={styles.candidateRole}>{t('candidate.role')}</Text>
         </View>
 
         {/* Details */}
         <View style={styles.detailsCard}>
-          <Text style={styles.detailsCardTitle}>Personal Information</Text>
+          <Text style={styles.detailsCardTitle}>{t('candidate.personalInformation')}</Text>
 
           <View style={styles.detailRow}>
             <View style={styles.detailIcon}>
               <User size={16} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.detailContent}>
-              <Text style={styles.detailLabel}>Full Name</Text>
+              <Text style={styles.detailLabel}>{t('candidate.fullName')}</Text>
               <Text style={styles.detailValue}>
                 {candidate.name} {candidate.surname}
               </Text>
@@ -157,7 +159,7 @@ export default function CandidateScreen() {
                 <Calendar size={16} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.detailContent}>
-                <Text style={styles.detailLabel}>Date of Birth</Text>
+                <Text style={styles.detailLabel}>{t('registration.dateOfBirth')}</Text>
                 <Text style={styles.detailValue}>{formatDate(candidate.date_of_birth)}</Text>
               </View>
             </View>
@@ -169,7 +171,7 @@ export default function CandidateScreen() {
                 <Mail size={16} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.detailContent}>
-                <Text style={styles.detailLabel}>Email</Text>
+                <Text style={styles.detailLabel}>{t('registration.email')}</Text>
                 <Text style={styles.detailValue}>{candidate.email}</Text>
               </View>
             </View>
@@ -180,7 +182,7 @@ export default function CandidateScreen() {
               <FileText size={16} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.detailContent}>
-              <Text style={styles.detailLabel}>Application Date</Text>
+              <Text style={styles.detailLabel}>{t('candidate.applicationDate')}</Text>
               <Text style={styles.detailValue}>{formatDate(candidate.submitted_at)}</Text>
             </View>
           </View>
@@ -190,13 +192,13 @@ export default function CandidateScreen() {
         <View style={styles.manifestoCard}>
           <View style={styles.manifestoHeader}>
             <FileText size={20} color={theme.colors.navy} strokeWidth={2} />
-            <Text style={styles.manifestoTitle}>Manifesto</Text>
+            <Text style={styles.manifestoTitle}>{t('candidate.manifesto')}</Text>
           </View>
 
           {candidate.manifesto ? (
             <>
               <Text style={styles.manifestoDescription}>
-                Read {candidate.name}'s official election manifesto to understand their vision and plans.
+                {t('candidate.manifestoDescription', { name: candidate.name })}
               </Text>
               <Pressable
                 style={[styles.downloadButton, downloading && styles.downloadButtonDisabled]}
@@ -209,7 +211,7 @@ export default function CandidateScreen() {
                   <Download size={18} color={theme.colors.white} strokeWidth={2.5} />
                 )}
                 <Text style={styles.downloadButtonText}>
-                  {downloading ? 'Opening...' : 'View / Download Manifesto'}
+                  {downloading ? t('candidate.opening') : t('candidate.viewDownloadManifesto')}
                 </Text>
               </Pressable>
             </>
@@ -217,7 +219,7 @@ export default function CandidateScreen() {
             <View style={styles.noManifesto}>
               <AlertCircle size={18} color={theme.colors.warning} strokeWidth={2} />
               <Text style={styles.noManifestoText}>
-                This candidate has not uploaded a manifesto yet.
+                {t('candidate.noManifestoYet')}
               </Text>
             </View>
           )}

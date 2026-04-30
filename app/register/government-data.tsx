@@ -55,7 +55,11 @@ export default function GovernmentDataScreen() {
         setError(t('registration.noRecordFound'));
       }
     } catch (err: any) {
-      setError(err.message || t('common.error'));
+      setError(
+        language === 'en'
+          ? err.message || t('common.somethingWentWrong')
+          : t('common.somethingWentWrong')
+      );
     } finally {
       setIsLoading(false);
     }

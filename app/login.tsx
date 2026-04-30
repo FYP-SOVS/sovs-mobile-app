@@ -15,11 +15,13 @@ import {
 import { useRouter } from 'expo-router';
 import { Shield, Phone, ArrowLeft, RefreshCw } from 'lucide-react-native';
 import { sendOTP, verifyOTP } from '@/services/auth';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 type Step = 'enter_contact' | 'enter_otp';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { t, language } = useTranslation();
   const [step, setStep] = useState<Step>('enter_contact');
   const [contact, setContact] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -32,7 +34,7 @@ export default function LoginScreen() {
   const handleSendOTP = async () => {
     const trimmed = contact.trim();
     if (!trimmed) {
-      setError('Please enter your phone number or email');
+      setError(t('login.enterContactError'));
       return;
     }
     setError('');
@@ -43,7 +45,7 @@ export default function LoginScreen() {
       setStep('enter_otp');
       startResendCooldown();
     } else {
-      setError(result.error || 'Failed to send OTP. Please try again.');
+      setError(language === 'en' ? result.error || t('login.sendFailed') : t('login.sendFailed'));
     }
   };
 
@@ -79,7 +81,7 @@ export default function LoginScreen() {
   const handleVerifyOTP = async () => {
     const token = otp.join('');
     if (token.length !== 6) {
-      setError('Please enter the 6-digit code');
+      setError(t('login.enterSixDigitCode'));
       return;
     }
     setError('');
@@ -89,7 +91,7 @@ export default function LoginScreen() {
     if (result.success) {
       router.replace('/(tabs)');
     } else {
-      setError(result.error || 'Invalid code. Please try again.');
+      setError(language === 'en' ? result.error || t('login.invalidCode') : t('login.invalidCode'));
       setOtp(['', '', '', '', '', '']);
       otpRefs.current[0]?.focus();
     }
@@ -104,9 +106,9 @@ export default function LoginScreen() {
     if (result.success) {
       setOtp(['', '', '', '', '', '']);
       startResendCooldown();
-      Alert.alert('Code Sent', 'A new verification code has been sent.');
+      Alert.alert(t('login.codeSentTitle'), t('login.codeSentMessage'));
     } else {
-      setError(result.error || 'Failed to resend code.');
+      setError(language === 'en' ? result.error || t('login.resendFailed') : t('login.resendFailed'));
     }
   };
 
@@ -129,16 +131,16 @@ export default function LoginScreen() {
 
           {step === 'enter_contact' ? (
             <>
-              <Text style={styles.title}>Sign In</Text>
+              <Text style={styles.title}>{t('login.signIn')}</Text>
               <Text style={styles.subtitle}>
-                Enter your phone number or email to receive a verification code
+                {t('login.subtitle')}
               </Text>
 
               <View style={styles.inputWrapper}>
                 <Phone size={18} color={theme.colors.navy} strokeWidth={2} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Phone number or email"
+                  placeholder={t('login.phoneOrEmail')}
                   placeholderTextColor={theme.colors.textPlaceholder}
                   value={contact}
                   onChangeText={setContact}
@@ -160,15 +162,15 @@ export default function LoginScreen() {
                 {loading ? (
                   <ActivityIndicator color={theme.colors.white} />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Send Verification Code</Text>
+                  <Text style={styles.primaryButtonText}>{t('login.sendCode')}</Text>
                 )}
               </Pressable>
             </>
           ) : (
             <>
-              <Text style={styles.title}>Enter Code</Text>
+              <Text style={styles.title}>{t('login.enterCodeTitle')}</Text>
               <Text style={styles.subtitle}>
-                We sent a 6-digit code to{'\n'}
+                {t('login.codeSentTo')}{'\n'}
                 <Text style={styles.contactHighlight}>{contact}</Text>
               </Text>
 
@@ -199,7 +201,7 @@ export default function LoginScreen() {
                 {loading ? (
                   <ActivityIndicator color={theme.colors.white} />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Verify & Sign In</Text>
+                  <Text style={styles.primaryButtonText}>{t('login.verifySignIn')}</Text>
                 )}
               </Pressable>
 
@@ -210,12 +212,14 @@ export default function LoginScreen() {
               >
                 <RefreshCw size={16} color={resendCooldown > 0 ? theme.colors.textPlaceholder : theme.colors.navy} strokeWidth={2} />
                 <Text style={[styles.resendText, resendCooldown > 0 && styles.resendTextDisabled]}>
-                  {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend code'}
+                  {resendCooldown > 0
+                    ? t('login.resendInSeconds', { seconds: resendCooldown })
+                    : t('login.resendCodeShort')}
                 </Text>
               </Pressable>
 
               <Pressable onPress={() => { setStep('enter_contact'); setOtp(['', '', '', '', '', '']); setError(''); }}>
-                <Text style={styles.changeContactText}>Change phone / email</Text>
+                <Text style={styles.changeContactText}>{t('login.changePhoneEmail')}</Text>
               </Pressable>
             </>
           )}

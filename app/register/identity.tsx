@@ -189,7 +189,7 @@ export default function IdentityVerificationScreen() {
               console.error('[DIDIT] Error clearing session:', error);
             }
 
-            setStatusMessage('Your verification is pending manual review. Please check back later.');
+            setStatusMessage(t('registration.verificationManualReview'));
             setIsVerifying(false);
             setSessionId(null);
             return;
@@ -216,7 +216,7 @@ export default function IdentityVerificationScreen() {
               if (!userData.first_name || !userData.last_name || !userData.date_of_birth) {
                 Alert.alert(
                   t('registration.verificationFailed'),
-                  'Could not extract required information from the verification. Please try again.',
+                  t('registration.extractInfoFailed'),
                   [
                     {
                       text: t('registration.tryAgain'),
@@ -245,7 +245,7 @@ export default function IdentityVerificationScreen() {
             } else {
               Alert.alert(
                 t('registration.verificationFailed'),
-                'Your identity verification was declined. Please ensure your ID is valid and try again.',
+                t('registration.verificationDeclined'),
                 [
                   {
                     text: t('registration.tryAgain'),
@@ -308,7 +308,7 @@ export default function IdentityVerificationScreen() {
 
   const openDiditWindow = async (url?: string, returnUrl?: string) => {
     if (!url) {
-      Alert.alert(t('common.error'), 'Verification link is missing. Please try again.');
+      Alert.alert(t('common.error'), t('registration.verificationLinkMissing'));
       setIsVerifying(false);
       return;
     }
@@ -316,7 +316,7 @@ export default function IdentityVerificationScreen() {
     if (Platform.OS === 'web' || typeof window !== 'undefined') {
       const diditWindow = window.open(url, '_blank');
       if (!diditWindow) {
-        Alert.alert(t('common.error'), 'Please allow popups for this site to continue with verification');
+        Alert.alert(t('common.error'), t('registration.allowPopups'));
         setIsVerifying(false);
         await storage.removeItem(DIDIT_SESSION_KEY);
       }
@@ -336,7 +336,7 @@ export default function IdentityVerificationScreen() {
   const handleStartVerification = async () => {
     try {
       if (!phoneNumber.trim() || !email.trim()) {
-        Alert.alert(t('common.error'), 'Please enter your phone number and email to continue.');
+        Alert.alert(t('common.error'), t('registration.enterPhoneAndEmail'));
         return;
       }
 
@@ -359,7 +359,7 @@ export default function IdentityVerificationScreen() {
       const newSessionId = session.session_id;
 
       if (!newSessionId) {
-        throw new Error('Failed to obtain session id');
+        throw new Error(t('registration.startVerificationFailed'));
       }
 
       // Persist session locally to resume polling
@@ -375,7 +375,7 @@ export default function IdentityVerificationScreen() {
       if (normalizedStatus === 'Approved') {
         setIsCreatingSession(false);
         setIsVerifying(false);
-        setStatusMessage('You are already verified.');
+        setStatusMessage(t('registration.alreadyVerified'));
 
         // Always fetch structured results so user_data is populated
         const result = await getDiditSessionResults(newSessionId);
@@ -400,7 +400,7 @@ export default function IdentityVerificationScreen() {
       if (normalizedStatus === 'In Review') {
         setIsCreatingSession(false);
         setIsVerifying(false);
-        setStatusMessage('Your verification is pending manual review. Please check back later.');
+        setStatusMessage(t('registration.verificationManualReview'));
         return;
       }
 
@@ -413,10 +413,12 @@ export default function IdentityVerificationScreen() {
       setIsVerifying(false);
       Alert.alert(
         t('common.error'),
-        error.message || 'Failed to start verification',
+        language === 'en'
+          ? error.message || t('registration.startVerificationFailed')
+          : t('registration.startVerificationFailed'),
         [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => {},
           },
         ]
@@ -450,7 +452,7 @@ export default function IdentityVerificationScreen() {
           <Text style={styles.verifyingSubtext}>
             {t('common.loading')}
             {'\n'}
-            Please complete the verification in the browser window.
+            {t('registration.completeInBrowser')}
           </Text>
           {statusMessage ? (
             <Text style={styles.statusMessage}>{statusMessage}</Text>
@@ -473,7 +475,7 @@ export default function IdentityVerificationScreen() {
         </View>
         <Text style={styles.title}>{t('registration.identityVerification')}</Text>
         <Text style={styles.subtitle}>
-          Verify your identity using Didit. You'll be redirected to complete the verification process.
+          {t('registration.identityDescription')}
         </Text>
       </View>
 
@@ -488,14 +490,14 @@ export default function IdentityVerificationScreen() {
         </View>
 
         <Text style={styles.description}>
-          Click the button below to start the identity verification process. You'll be asked to:
+          {t('registration.identityStartPrompt')}
         </Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.formLabel}>Phone Number</Text>
+          <Text style={styles.formLabel}>{t('registration.phoneNumber')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your phone number"
+            placeholder={t('registration.phonePlaceholder')}
             placeholderTextColor={theme.colors.textTertiary}
             keyboardType="phone-pad"
             autoComplete="tel"
@@ -503,10 +505,10 @@ export default function IdentityVerificationScreen() {
             onChangeText={setPhoneNumber}
           />
 
-          <Text style={[styles.formLabel, { marginTop: 16 }]}>Email</Text>
+          <Text style={[styles.formLabel, { marginTop: 16 }]}>{t('registration.email')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your email"
+            placeholder={t('registration.emailPlaceholder')}
             placeholderTextColor={theme.colors.textTertiary}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -523,15 +525,15 @@ export default function IdentityVerificationScreen() {
         <View style={styles.stepsList}>
           <View style={styles.stepItem}>
             <Text style={styles.stepNumber}>1</Text>
-            <Text style={styles.stepText}>Take a selfie</Text>
+            <Text style={styles.stepText}>{t('registration.takeSelfieShort')}</Text>
           </View>
           <View style={styles.stepItem}>
             <Text style={styles.stepNumber}>2</Text>
-            <Text style={styles.stepText}>Capture your ID document (front and back)</Text>
+            <Text style={styles.stepText}>{t('registration.captureIdDocument')}</Text>
           </View>
           <View style={styles.stepItem}>
             <Text style={styles.stepNumber}>3</Text>
-            <Text style={styles.stepText}>Complete verification</Text>
+            <Text style={styles.stepText}>{t('registration.completeVerification')}</Text>
           </View>
         </View>
 
@@ -545,7 +547,7 @@ export default function IdentityVerificationScreen() {
           ) : (
             <>
               <ExternalLink size={20} color={theme.colors.white} strokeWidth={2.5} />
-              <Text style={styles.buttonText}>Start Verification</Text>
+              <Text style={styles.buttonText}>{t('registration.startVerification')}</Text>
             </>
           )}
         </Pressable>

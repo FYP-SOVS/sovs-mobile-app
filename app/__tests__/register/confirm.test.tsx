@@ -62,7 +62,7 @@ describe('ConfirmRegistrationScreen', () => {
 
     expect(getByText('John Doe')).toBeTruthy();
     expect(getByText('1234567890')).toBeTruthy();
-    expect(getByText('VOTER')).toBeTruthy();
+    expect(getByText('profile.roleVoter')).toBeTruthy();
   });
 
   it('toggles language on press', () => {

@@ -44,7 +44,7 @@ describe('PasswordSetupScreen', () => {
 
   it('renders password setup screen', () => {
     const { getByText } = render(<PasswordSetupScreen />);
-    expect(getByText('Create Your Account')).toBeTruthy();
+    expect(getByText('registration.createYourAccount')).toBeTruthy();
   });
 
   it('shows error when passwords do not match', async () => {
@@ -53,19 +53,19 @@ describe('PasswordSetupScreen', () => {
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter password (min 8 characters)'),
+      getByPlaceholderText('registration.passwordPlaceholder'),
       'Password123!'
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Confirm your password'),
+      getByPlaceholderText('registration.confirmPasswordPlaceholder'),
       'WrongPassword'
     );
 
-    fireEvent.press(getByText('Create Account'));
+    fireEvent.press(getByText('registration.createAccount'));
 
     await waitFor(() => {
-      expect(getByText('Passwords do not match')).toBeTruthy();
+      expect(getByText('registration.passwordsDoNotMatch')).toBeTruthy();
     });
   });
 
@@ -82,16 +82,16 @@ describe('PasswordSetupScreen', () => {
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Enter password (min 8 characters)'),
+      getByPlaceholderText('registration.passwordPlaceholder'),
       'Password123!'
     );
 
     fireEvent.changeText(
-      getByPlaceholderText('Confirm your password'),
+      getByPlaceholderText('registration.confirmPasswordPlaceholder'),
       'Password123!'
     );
 
-    fireEvent.press(getByText('Create Account'));
+    fireEvent.press(getByText('registration.createAccount'));
 
     await waitFor(() => {
       expect(registerUser).toHaveBeenCalled();

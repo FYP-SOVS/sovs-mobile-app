@@ -120,7 +120,7 @@ export default function ConfirmationScreen() {
   const handleCreateAccount = useCallback(async () => {
     // Validation
     if (!phoneNumber.trim()) {
-      const error = 'Phone number is required';
+      const error = t('registration.phoneRequired');
       setErrorMessage(error);
       Alert.alert(t('common.error'), error);
       return;
@@ -146,18 +146,24 @@ export default function ConfirmationScreen() {
         await AsyncStorage.removeItem(FORM_STORAGE_KEY);
         router.replace('/register/success');
       } else {
-        const error = result.error || t('common.error');
+        const error =
+          language === 'en'
+            ? result.error || t('common.somethingWentWrong')
+            : t('common.somethingWentWrong');
         setErrorMessage(error);
         Alert.alert(t('common.error'), error);
         setIsCreating(false);
       }
     } catch (error: any) {
-      const errorMsg = error.message || t('common.error');
+      const errorMsg =
+        language === 'en'
+          ? error.message || t('common.somethingWentWrong')
+          : t('common.somethingWentWrong');
       setErrorMessage(errorMsg);
       Alert.alert(t('common.error'), errorMsg);
       setIsCreating(false);
     }
-  }, [phoneNumber, email, userData, t, router]);
+  }, [phoneNumber, email, userData, t, language, router]);
 
   const Container = Platform.OS === 'web' ? View : KeyboardAvoidingView;
   const containerProps =
@@ -222,9 +228,9 @@ export default function ConfirmationScreen() {
 </Pressable>
 
           </View>
-          <Text style={styles.title}>Confirm Your Information</Text>
+          <Text style={styles.title}>{t('registration.confirmYourInformation')}</Text>
           <Text style={styles.subtitle}>
-            Please verify your details before completing registration
+            {t('registration.confirmYourInformationDescription')}
           </Text>
         </View>
 
@@ -235,19 +241,19 @@ export default function ConfirmationScreen() {
               <View style={styles.cardHeaderIcon}>
                 <CheckCircle size={24} color={theme.colors.success} strokeWidth={2} />
               </View>
-              <Text style={styles.cardHeaderText}>Verified Information</Text>
+              <Text style={styles.cardHeaderText}>{t('registration.verifiedInformation')}</Text>
             </View>
 
             <View style={styles.infoSection}>
               <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Full Name</Text>
+                <Text style={styles.fieldLabel}>{t('profile.fullName')}</Text>
                 <Text style={styles.fieldValue}>
                   {userData.firstName} {userData.lastName}
                 </Text>
               </View>
 
               <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Date of Birth</Text>
+                <Text style={styles.fieldLabel}>{t('registration.dateOfBirth')}</Text>
                 <Text style={styles.fieldValue}>
                   {new Date(userData.dateOfBirth).toLocaleDateString(
                     language === 'tr' ? 'tr-TR' : 'en-US',
@@ -261,7 +267,7 @@ export default function ConfirmationScreen() {
               </View>
 
               <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Document ID</Text>
+                <Text style={styles.fieldLabel}>{t('registration.documentId')}</Text>
                 <Text style={styles.fieldValue}>
                   {userData.documentNumber}
                 </Text>
@@ -271,10 +277,10 @@ export default function ConfirmationScreen() {
 
           {/* Contact Information Card */}
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Contact Information</Text>
+            <Text style={styles.formTitle}>{t('registration.contactInformation')}</Text>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Phone Number *</Text>
+              <Text style={styles.inputLabel}>{t('registration.phoneNumber')} *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="+1234567890"
@@ -291,7 +297,7 @@ export default function ConfirmationScreen() {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Email (Optional)</Text>
+              <Text style={styles.inputLabel}>{t('registration.email')} {t('registration.optional')}</Text>
               <TextInput
                 style={styles.input}
                 placeholder="user@example.com"
@@ -312,7 +318,7 @@ export default function ConfirmationScreen() {
           {/* Info Box */}
           <View style={styles.infoBox}>
             <Text style={styles.infoBoxText}>
-              You will use one-time passwords (OTP) sent to your phone number to log in. No need to remember a password!
+              {t('registration.otpLoginInfo')}
             </Text>
           </View>
 
@@ -333,7 +339,7 @@ export default function ConfirmationScreen() {
               <ActivityIndicator color={theme.colors.white} />
             ) : (
               <>
-                <Text style={styles.buttonText}>Complete Registration</Text>
+                <Text style={styles.buttonText}>{t('registration.completeRegistration')}</Text>
                 <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
               </>
             )}

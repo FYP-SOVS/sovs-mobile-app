@@ -10,16 +10,22 @@ jest.mock('expo-router', () => ({
   Link: ({ children }: { children: React.ReactNode }) => children,
 }));
 
+jest.mock('@/contexts/LanguageContext', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 describe('NotFoundScreen', () => {
   it("renders the not found message", () => {
     const { getByText } = render(<NotFoundScreen />);
 
-    expect(getByText("This screen doesn't exist.")).toBeTruthy();
+    expect(getByText('notFound.message')).toBeTruthy();
   });
 
   it('renders link to home screen', () => {
     const { getByText } = render(<NotFoundScreen />);
 
-    expect(getByText('Go to home screen!')).toBeTruthy();
+    expect(getByText('notFound.goHome')).toBeTruthy();
   });
 });

@@ -26,6 +26,7 @@ import {
   Vote,
   CheckCircle,
 } from 'lucide-react-native';
+import { useTranslation } from '@/contexts/LanguageContext';
 import { electionsAPI, candidatesAPI, Election, Candidate } from '@/services/elections';
 import { castVote, getVotingStatus } from '@/services/voting';
 
@@ -41,6 +42,7 @@ interface VotingStatus {
 export default function ElectionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t, language } = useTranslation();
   const [election, setElection] = useState<Election | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,12 +71,12 @@ export default function ElectionScreen() {
       setElection(electionData);
       setCandidates(candidatesData);
     } catch (e: any) {
-      setError('Could not load election details. Please try again.');
+      setError(t('election.loadError'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   const fetchVotingStatus = useCallback(async () => {
     if (!id) return;
@@ -133,7 +135,11 @@ export default function ElectionScreen() {
       });
       setVoteState('success');
     } else {
-      setVoteError(result.error || 'Failed to cast vote. Please try again.');
+      setVoteError(
+        language === 'en'
+          ? result.error || t('election.castVoteFailedMessage')
+          : t('election.castVoteFailedMessage')
+      );
       setVoteState('error');
     }
   };
@@ -145,12 +151,12 @@ export default function ElectionScreen() {
 
   const openExplorer = (url: string) => {
     Linking.openURL(url).catch(() =>
-      Alert.alert('Error', 'Could not open blockchain explorer')
+      Alert.alert(t('common.error'), t('election.openExplorerError'))
     );
   };
 
   const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('en-US', {
+    new Date(dateStr).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -161,7 +167,7 @@ export default function ElectionScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={theme.colors.navy} />
-        <Text style={styles.loadingText}>Loading election...</Text>
+        <Text style={styles.loadingText}>{t('election.loading')}</Text>
       </View>
     );
   }
@@ -176,10 +182,10 @@ export default function ElectionScreen() {
         </View>
         <View style={styles.centered}>
           <AlertCircle size={40} color={theme.colors.danger} strokeWidth={1.5} />
-          <Text style={styles.errorTitle}>Failed to load</Text>
+          <Text style={styles.errorTitle}>{t('common.failedToLoad')}</Text>
           <Text style={styles.errorSubtitle}>{error}</Text>
           <Pressable style={styles.retryButton} onPress={fetchData}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
           </Pressable>
         </View>
       </View>
@@ -193,7 +199,7 @@ export default function ElectionScreen() {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <ArrowLeft size={22} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
-        <Text style={styles.headerTitle}>Election Details</Text>
+        <Text style={styles.headerTitle}>{t('election.details')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -218,7 +224,11 @@ export default function ElectionScreen() {
                 styles.statusBadgeText,
                 isElectionOpen ? styles.openBadgeText : styles.pastBadgeText,
               ]}>
-                {isElectionOpen ? 'Voting Open' : election.status === 'upcoming' ? 'Upcoming' : 'Closed'}
+                {isElectionOpen
+                  ? t('election.votingOpen')
+                  : election.status === 'upcoming'
+                  ? t('election.upcoming')
+                  : t('election.closed')}
               </Text>
             </View>
           </View>
@@ -237,9 +247,9 @@ export default function ElectionScreen() {
           <View style={styles.votedBanner}>
             <ShieldCheck size={20} color={theme.colors.success} strokeWidth={2} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.votedBannerTitle}>Vote recorded on blockchain</Text>
+              <Text style={styles.votedBannerTitle}>{t('election.voteRecordedTitle')}</Text>
               <Text style={styles.votedBannerSub}>
-                Your vote is immutably recorded and cannot be changed.
+                {t('election.voteRecordedDescription')}
               </Text>
               {votingStatus.explorerUrl && (
                 <Pressable
@@ -247,7 +257,7 @@ export default function ElectionScreen() {
                   style={styles.explorerLink}
                 >
                   <ExternalLink size={12} color={theme.colors.success} strokeWidth={2} />
-                  <Text style={styles.explorerLinkText}>View on blockchain explorer</Text>
+                  <Text style={styles.explorerLinkText}>{t('election.viewExplorer')}</Text>
                 </Pressable>
               )}
             </View>
@@ -258,16 +268,14 @@ export default function ElectionScreen() {
         {voteState === 'success' && txHash && (
           <View style={styles.successCard}>
             <ShieldCheck size={32} color={theme.colors.success} strokeWidth={2} />
-            <Text style={styles.successTitle}>Vote Cast Successfully!</Text>
+            <Text style={styles.successTitle}>{t('election.voteSuccess')}</Text>
             <Text style={styles.successSub}>
-              Your vote for{' '}
-              <Text style={{ fontWeight: '700' }}>
-                {selectedCandidate?.name} {selectedCandidate?.surname}
-              </Text>{' '}
-              has been recorded on the Ethereum blockchain.
+              {t('election.voteSuccessMessage', {
+                name: `${selectedCandidate?.name ?? ''} ${selectedCandidate?.surname ?? ''}`.trim(),
+              })}
             </Text>
             <View style={styles.txHashBox}>
-              <Text style={styles.txHashLabel}>Transaction Hash</Text>
+              <Text style={styles.txHashLabel}>{t('election.transactionHash')}</Text>
               <Text style={styles.txHashValue} numberOfLines={2}>{txHash}</Text>
             </View>
             {explorerUrl && (
@@ -276,7 +284,7 @@ export default function ElectionScreen() {
                 onPress={() => openExplorer(explorerUrl)}
               >
                 <ExternalLink size={16} color={theme.colors.white} strokeWidth={2} />
-                <Text style={styles.explorerButtonText}>View on Blockchain Explorer</Text>
+                <Text style={styles.explorerButtonText}>{t('election.viewBlockchainExplorer')}</Text>
               </Pressable>
             )}
           </View>
@@ -287,7 +295,7 @@ export default function ElectionScreen() {
           <View style={styles.errorCard}>
             <AlertCircle size={20} color={theme.colors.danger} strokeWidth={2} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.errorCardTitle}>Failed to cast vote</Text>
+              <Text style={styles.errorCardTitle}>{t('election.castVoteFailed')}</Text>
               <Text style={styles.errorCardSub}>{voteError}</Text>
             </View>
           </View>
@@ -297,7 +305,7 @@ export default function ElectionScreen() {
         {voteState === 'submitting' && (
           <View style={styles.submittingCard}>
             <ActivityIndicator size="small" color={theme.colors.navy} />
-            <Text style={styles.submittingText}>Submitting vote to blockchain…</Text>
+            <Text style={styles.submittingText}>{t('election.submittingVote')}</Text>
           </View>
         )}
 
@@ -306,18 +314,18 @@ export default function ElectionScreen() {
           <View style={styles.candidatesHeader}>
             <Users size={18} color={theme.colors.navy} strokeWidth={2} />
             <Text style={styles.sectionTitle}>
-              Candidates{candidates.length > 0 ? ` (${candidates.length})` : ''}
+              {t('election.candidates')}{candidates.length > 0 ? ` (${candidates.length})` : ''}
             </Text>
           </View>
           {isElectionOpen && !votingStatus.hasVoted && voteState === 'idle' && (
-            <Text style={styles.selectHint}>Tap a candidate to select your vote</Text>
+            <Text style={styles.selectHint}>{t('election.selectHint')}</Text>
           )}
 
           {candidates.length === 0 ? (
             <View style={styles.emptyCard}>
               <User size={36} color={theme.colors.borderStrong} strokeWidth={1.5} />
-              <Text style={styles.emptyTitle}>No Candidates</Text>
-              <Text style={styles.emptySubtitle}>No approved candidates for this election yet</Text>
+              <Text style={styles.emptyTitle}>{t('election.noCandidates')}</Text>
+              <Text style={styles.emptySubtitle}>{t('election.noCandidatesSubtitle')}</Text>
             </View>
           ) : (
             candidates.map((candidate) => {
@@ -367,14 +375,14 @@ export default function ElectionScreen() {
                       {isVotedFor && (
                         <View style={styles.yourVoteBadge}>
                           <CheckCircle size={11} color={theme.colors.success} strokeWidth={2.5} />
-                          <Text style={styles.yourVoteText}>Your vote</Text>
+                          <Text style={styles.yourVoteText}>{t('election.yourVote')}</Text>
                         </View>
                       )}
                     </View>
                     {candidate.manifesto ? (
-                      <Text style={styles.manifestoAvailable}>Manifesto available</Text>
+                      <Text style={styles.manifestoAvailable}>{t('election.manifestoAvailable')}</Text>
                     ) : (
-                      <Text style={styles.manifestoUnavailable}>No manifesto</Text>
+                      <Text style={styles.manifestoUnavailable}>{t('election.noManifesto')}</Text>
                     )}
                   </View>
 
@@ -393,7 +401,7 @@ export default function ElectionScreen() {
                 style={styles.retryVoteButton}
                 onPress={() => { setVoteState('idle'); setVoteError(''); }}
               >
-                <Text style={styles.retryVoteButtonText}>Try Again</Text>
+                <Text style={styles.retryVoteButtonText}>{t('registration.tryAgain')}</Text>
               </Pressable>
             )}
             <Pressable
@@ -407,8 +415,8 @@ export default function ElectionScreen() {
               <Vote size={20} color={theme.colors.white} strokeWidth={2} />
               <Text style={styles.voteButtonText}>
                 {selectedCandidate
-                  ? `Vote for ${selectedCandidate.name} ${selectedCandidate.surname}`
-                  : 'Select a Candidate'}
+                  ? t('election.voteFor', { name: `${selectedCandidate.name} ${selectedCandidate.surname}` })
+                  : t('election.selectCandidate')}
               </Text>
             </Pressable>
           </View>
@@ -427,23 +435,23 @@ export default function ElectionScreen() {
             <View style={styles.modalIconWrapper}>
               <Vote size={28} color={theme.colors.navy} strokeWidth={2} />
             </View>
-            <Text style={styles.modalTitle}>Confirm Your Vote</Text>
+            <Text style={styles.modalTitle}>{t('election.confirmVote')}</Text>
             <Text style={styles.modalBody}>
-              You are about to vote for{'\n'}
+              {t('election.aboutToVoteFor')}{'\n'}
               <Text style={styles.modalCandidateName}>
                 {selectedCandidate?.name} {selectedCandidate?.surname}
               </Text>
             </Text>
             <Text style={styles.modalWarning}>
-              This action is permanent and cannot be undone. Your vote will be recorded on the Ethereum blockchain.
+              {t('election.voteWarning')}
             </Text>
             <View style={styles.modalActions}>
               <Pressable style={styles.modalCancelBtn} onPress={handleCancelConfirm}>
-                <Text style={styles.modalCancelText}>Go Back</Text>
+                <Text style={styles.modalCancelText}>{t('election.goBack')}</Text>
               </Pressable>
               <Pressable style={styles.modalConfirmBtn} onPress={handleConfirmVote}>
                 <ShieldCheck size={16} color={theme.colors.white} strokeWidth={2} />
-                <Text style={styles.modalConfirmText}>Submit Vote</Text>
+                <Text style={styles.modalConfirmText}>{t('election.submitVote')}</Text>
               </Pressable>
             </View>
           </View>

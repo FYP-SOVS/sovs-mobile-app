@@ -29,7 +29,7 @@ export default function ConfirmRegistrationScreen() {
 
   const handleCreateAccount = async () => {
     if (!phoneNumber.trim()) {
-      Alert.alert(t('common.error'), t('registration.phoneNumber') + ' is required');
+      Alert.alert(t('common.error'), t('registration.phoneRequired'));
       return;
     }
 
@@ -48,11 +48,21 @@ export default function ConfirmRegistrationScreen() {
       if (result.success) {
         router.replace('/register/success');
       } else {
-        Alert.alert(t('common.error'), result.error || t('common.error'));
+        Alert.alert(
+          t('common.error'),
+          language === 'en'
+            ? result.error || t('common.somethingWentWrong')
+            : t('common.somethingWentWrong')
+        );
         setIsCreating(false);
       }
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('common.error'));
+      Alert.alert(
+        t('common.error'),
+        language === 'en'
+          ? error.message || t('common.somethingWentWrong')
+          : t('common.somethingWentWrong')
+      );
       setIsCreating(false);
     }
   };
@@ -164,7 +174,7 @@ export default function ConfirmRegistrationScreen() {
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.role')}</Text>
-                  <Text style={styles.infoValue}>VOTER</Text>
+                  <Text style={styles.infoValue}>{t('profile.roleVoter')}</Text>
                 </View>
               </View>
             </View>

@@ -5,7 +5,7 @@ import { Language, translations } from '@/i18n/translations';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -38,7 +38,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = translations[language];
     
@@ -54,7 +54,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    if (typeof value !== 'string') return key;
+
+    if (!params) return value;
+
+    return Object.entries(params).reduce(
+      (text, [paramKey, paramValue]) =>
+        text.replace(new RegExp(`{{\\s*${paramKey}\\s*}}`, 'g'), String(paramValue)),
+      value
+    );
   };
 
   return (

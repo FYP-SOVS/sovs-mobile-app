@@ -174,9 +174,9 @@ export default function ProfileScreen() {
           <Text style={styles.headerTitle}>{t('profile.title')}</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>No user data found</Text>
+          <Text style={styles.errorText}>{t('profile.noUserData')}</Text>
           <Pressable style={styles.retryButton} onPress={loadUserData}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
           </Pressable>
         </View>
       </View>
@@ -204,7 +204,7 @@ export default function ProfileScreen() {
           <Text style={styles.name} testID="profile-full-name">
             {userData.firstName} {userData.lastName}
           </Text>
-          <Text style={styles.role}>{userData.role}</Text>
+          <Text style={styles.role}>{t('profile.roleVoter')}</Text>
         </View>
 
         <View style={styles.languageSection}>
@@ -251,7 +251,7 @@ export default function ProfileScreen() {
                       language === 'tr' ? 'tr-TR' : 'en-US',
                       { year: 'numeric', month: 'long', day: 'numeric' }
                     )
-                  : 'N/A'}
+                  : t('common.notAvailable')}
               </Text>
             </View>
           </View>
@@ -262,7 +262,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>{t('registration.phoneNumber')}</Text>
-              <Text style={styles.infoValue}>{userData.phoneNumber || 'N/A'}</Text>
+              <Text style={styles.infoValue}>{userData.phoneNumber || t('common.notAvailable')}</Text>
             </View>
           </View>
 
@@ -305,8 +305,8 @@ export default function ProfileScreen() {
                 {userData.status === 'verified'
                   ? t('profile.verified')
                   : userData.status === 'suspended'
-                  ? t('profile.suspended') || 'Suspended'
-                  : t('profile.pending') || 'Pending'}
+                  ? t('profile.suspended')
+                  : t('profile.pending')}
               </Text>
             </View>
           </View>
