@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { theme } from '@/theme';
 import {
   StyleSheet,
   Text,
@@ -117,13 +118,13 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <ArrowLeft size={22} color="#667eea" strokeWidth={2} />
+            <ArrowLeft size={22} color={theme.colors.navy} strokeWidth={2} />
           </Pressable>
         </View>
 
         <View style={styles.content}>
           <View style={styles.iconCircle}>
-            <Shield size={40} color="#667eea" strokeWidth={2} />
+            <Shield size={40} color={theme.colors.navy} strokeWidth={2} />
           </View>
 
           {step === 'enter_contact' ? (
@@ -134,11 +135,11 @@ export default function LoginScreen() {
               </Text>
 
               <View style={styles.inputWrapper}>
-                <Phone size={18} color="#667eea" strokeWidth={2} style={styles.inputIcon} />
+                <Phone size={18} color={theme.colors.navy} strokeWidth={2} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Phone number or email"
-                  placeholderTextColor="#aaa"
+                  placeholderTextColor={theme.colors.textPlaceholder}
                   value={contact}
                   onChangeText={setContact}
                   autoCapitalize="none"
@@ -157,7 +158,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color={theme.colors.white} />
                 ) : (
                   <Text style={styles.primaryButtonText}>Send Verification Code</Text>
                 )}
@@ -196,7 +197,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color={theme.colors.white} />
                 ) : (
                   <Text style={styles.primaryButtonText}>Verify & Sign In</Text>
                 )}
@@ -207,7 +208,7 @@ export default function LoginScreen() {
                 onPress={handleResend}
                 disabled={resendCooldown > 0 || loading}
               >
-                <RefreshCw size={16} color={resendCooldown > 0 ? '#aaa' : '#667eea'} strokeWidth={2} />
+                <RefreshCw size={16} color={resendCooldown > 0 ? theme.colors.textPlaceholder : theme.colors.navy} strokeWidth={2} />
                 <Text style={[styles.resendText, resendCooldown > 0 && styles.resendTextDisabled]}>
                   {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend code'}
                 </Text>
@@ -227,7 +228,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scroll: {
     flexGrow: 1,
@@ -241,11 +242,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#e8e8e8',
+    borderColor: theme.colors.border,
   },
   content: {
     flex: 1,
@@ -258,39 +259,39 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2.5,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
     marginBottom: 28,
   },
   title: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 15,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
   },
   contactHighlight: {
-    color: '#667eea',
+    color: theme.colors.navy,
     fontWeight: '600',
   },
   inputWrapper: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#e0e0e0',
+    borderColor: theme.colors.borderStrong,
     paddingHorizontal: 16,
     marginBottom: 8,
     height: 56,
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   otpRow: {
     flexDirection: 'row',
@@ -312,31 +313,31 @@ const styles = StyleSheet.create({
     width: 46,
     height: 56,
     borderRadius: 12,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderWidth: 1.5,
-    borderColor: '#e0e0e0',
+    borderColor: theme.colors.borderStrong,
     fontSize: 22,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   otpBoxFilled: {
-    borderColor: '#667eea',
-    backgroundColor: '#f0f4ff',
+    borderColor: theme.colors.navy,
+    backgroundColor: theme.colors.goldSoft,
   },
   errorText: {
-    color: '#ef4444',
+    color: theme.colors.danger,
     fontSize: 14,
     marginBottom: 12,
     textAlign: 'center',
   },
   primaryButton: {
     width: '100%',
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 14,
     padding: 18,
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   primaryButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 17,
     fontWeight: '700',
   },
@@ -361,15 +362,15 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   resendText: {
-    color: '#667eea',
+    color: theme.colors.navy,
     fontSize: 15,
     fontWeight: '600',
   },
   resendTextDisabled: {
-    color: '#aaa',
+    color: theme.colors.textPlaceholder,
   },
   changeContactText: {
-    color: '#999',
+    color: theme.colors.textTertiary,
     fontSize: 14,
     marginTop: 16,
     textDecorationLine: 'underline',

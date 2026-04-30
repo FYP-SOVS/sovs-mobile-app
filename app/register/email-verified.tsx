@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CheckCircle, ArrowRight } from 'lucide-react-native';
@@ -16,7 +17,7 @@ export default function EmailVerifiedScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <CheckCircle size={80} color="#10b981" strokeWidth={1.5} />
+          <CheckCircle size={80} color={theme.colors.success} strokeWidth={1.5} />
         </View>
 
         <Text style={styles.title}>Email Verified!</Text>
@@ -30,7 +31,7 @@ export default function EmailVerifiedScreen() {
           onPress={handleContinue}
         >
           <Text style={styles.buttonText}>Continue Registration</Text>
-          <ArrowRight size={20} color="#fff" style={{ marginLeft: 8 }} />
+          <ArrowRight size={20} color={theme.colors.white} style={{ marginLeft: 8 }} />
         </Pressable>
 
         <Pressable 
@@ -47,7 +48,7 @@ export default function EmailVerifiedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -64,19 +65,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1f2937',
+    color: theme.colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
   },
   message: {
     fontSize: 16,
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 24,
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 8,
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -96,13 +97,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.colors.borderStrong,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
   },

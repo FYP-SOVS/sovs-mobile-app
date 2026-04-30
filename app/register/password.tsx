@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { theme } from '@/theme';
 import {
   StyleSheet,
   Text,
@@ -36,11 +37,11 @@ function PasswordRequirement({ label, met }: { label: string; met: boolean }) {
       <View
         style={[
           styles.requirementIcon,
-          { backgroundColor: met ? '#e7f5e9' : '#f5f5f5' },
+          { backgroundColor: met ? theme.colors.successSoft : theme.colors.surfaceMuted },
         ]}
       >
         {met ? (
-          <CheckCircle2 size={16} color="#6bcf7f" strokeWidth={2.5} />
+          <CheckCircle2 size={16} color={theme.colors.success} strokeWidth={2.5} />
         ) : (
           <View style={styles.requirementCircle} />
         )}
@@ -271,7 +272,7 @@ export default function PasswordSetupScreen() {
               </Text>
             </View>
             <Pressable style={styles.languageButton} onPress={toggleLanguage}>
-              <Languages size={20} color="#667eea" strokeWidth={2} />
+              <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
             </Pressable>
           </View>
           <Text style={styles.title}>Create Your Account</Text>
@@ -284,7 +285,7 @@ export default function PasswordSetupScreen() {
           <View style={styles.infoCard}>
             <View style={styles.cardHeader}>
               <View style={styles.cardHeaderIcon}>
-                <Lock size={24} color="#667eea" strokeWidth={2} />
+                <Lock size={24} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <Text style={styles.cardHeaderText}>Account Information</Text>
             </View>
@@ -321,7 +322,7 @@ export default function PasswordSetupScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="+1234567890"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.colors.textTertiary}
                 value={phoneNumber}
                 onChangeText={(text) => setPhoneNumber(text)}
                 onFocus={handleInputFocus}
@@ -338,7 +339,7 @@ export default function PasswordSetupScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="user@example.com"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.colors.textTertiary}
                 value={email}
                 onChangeText={(text) => setEmail(text)}
                 onFocus={handleInputFocus}
@@ -361,7 +362,7 @@ export default function PasswordSetupScreen() {
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="Enter password (min 8 characters)"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={theme.colors.textTertiary}
                   value={password}
                   onChangeText={(text) => setPassword(text)}
                   onFocus={handleInputFocus}
@@ -378,9 +379,9 @@ export default function PasswordSetupScreen() {
                   disabled={isCreating}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color="#666" strokeWidth={2} />
+                    <EyeOff size={20} color={theme.colors.textSecondary} strokeWidth={2} />
                   ) : (
-                    <Eye size={20} color="#666" strokeWidth={2} />
+                    <Eye size={20} color={theme.colors.textSecondary} strokeWidth={2} />
                   )}
                 </Pressable>
               </View>
@@ -398,11 +399,11 @@ export default function PasswordSetupScreen() {
                             backgroundColor:
                               index < passwordStrength
                                 ? passwordStrength <= 2
-                                  ? '#ff6b6b'
+                                  ? theme.colors.danger
                                   : passwordStrength === 3
-                                  ? '#ffd93d'
-                                  : '#6bcf7f'
-                                : '#e9ecef',
+                                  ? theme.colors.warning
+                                  : theme.colors.success
+                                : theme.colors.border,
                           },
                         ]}
                       />
@@ -414,10 +415,10 @@ export default function PasswordSetupScreen() {
                       {
                         color:
                           passwordStrength <= 2
-                            ? '#ff6b6b'
+                            ? theme.colors.danger
                             : passwordStrength === 3
-                            ? '#ffd93d'
-                            : '#6bcf7f',
+                            ? theme.colors.warning
+                            : theme.colors.success,
                       },
                     ]}
                   >
@@ -463,7 +464,7 @@ export default function PasswordSetupScreen() {
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="Confirm your password"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={theme.colors.textTertiary}
                   value={confirmPassword}
                   onChangeText={(text) => setConfirmPassword(text)}
                   onFocus={handleInputFocus}
@@ -480,15 +481,15 @@ export default function PasswordSetupScreen() {
                   disabled={isCreating}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff size={20} color="#666" strokeWidth={2} />
+                    <EyeOff size={20} color={theme.colors.textSecondary} strokeWidth={2} />
                   ) : (
-                    <Eye size={20} color="#666" strokeWidth={2} />
+                    <Eye size={20} color={theme.colors.textSecondary} strokeWidth={2} />
                   )}
                 </Pressable>
               </View>
               {passwordMatchError && confirmPassword && (
                 <View style={styles.errorMessage}>
-                  <AlertCircle size={16} color="#ff6b6b" strokeWidth={2} />
+                  <AlertCircle size={16} color={theme.colors.danger} strokeWidth={2} />
                   <Text style={styles.errorText}>Passwords do not match</Text>
                 </View>
               )}
@@ -501,11 +502,11 @@ export default function PasswordSetupScreen() {
             disabled={isCreating}
           >
             {isCreating ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.white} />
             ) : (
               <>
                 <Text style={styles.buttonText}>Create Account</Text>
-                <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+                <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
               </>
             )}
           </Pressable>
@@ -518,7 +519,7 @@ export default function PasswordSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -527,9 +528,9 @@ const styles = StyleSheet.create({
   header: {
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
     paddingTop: SCREEN_WIDTH < 375 ? 50 : 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -538,56 +539,56 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepBadge: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   languageButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667eea',
+    color: theme.colors.navy,
     letterSpacing: 0.5,
   },
   title: {
     fontSize: SCREEN_WIDTH < 375 ? 24 : 28,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 24,
   },
   content: {
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: SCREEN_WIDTH < 375 ? 16 : 24,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -595,13 +596,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 20,
     borderBottomWidth: 2,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   cardHeaderIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -609,7 +610,7 @@ const styles = StyleSheet.create({
   cardHeaderText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   infoSection: {
     gap: 0,
@@ -618,12 +619,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: theme.colors.surfaceMuted,
   },
   fieldLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: theme.colors.textSecondary,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -631,25 +632,25 @@ const styles = StyleSheet.create({
   fieldValue: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   formCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: SCREEN_WIDTH < 375 ? 16 : 24,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   formTitle: {
     fontSize: SCREEN_WIDTH < 375 ? 18 : 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 24,
   },
   inputWrapper: {
@@ -658,36 +659,36 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: SCREEN_WIDTH < 375 ? 13 : 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
     borderRadius: 12,
     padding: SCREEN_WIDTH < 375 ? 14 : 16,
     fontSize: SCREEN_WIDTH < 375 ? 15 : 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     borderWidth: 2,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
     minHeight: 50,
   },
   passwordInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   passwordInputContainerError: {
-    borderColor: '#ff6b6b',
-    backgroundColor: '#fff8f7',
+    borderColor: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
   },
   passwordInput: {
     flex: 1,
     padding: SCREEN_WIDTH < 375 ? 14 : 16,
     fontSize: SCREEN_WIDTH < 375 ? 15 : 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     minHeight: 50,
   },
   eyeButton: {
@@ -716,12 +717,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.colors.border,
   },
   requirementsTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666',
+    color: theme.colors.textSecondary,
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -743,15 +744,15 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#ccc',
+    backgroundColor: theme.colors.borderStrong,
   },
   requirementLabel: {
     fontSize: 13,
-    color: '#999',
+    color: theme.colors.textTertiary,
     fontWeight: '500',
   },
   requirementMet: {
-    color: '#6bcf7f',
+    color: theme.colors.success,
     fontWeight: '600',
   },
   // Error message
@@ -761,24 +762,24 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#fff1f0',
+    backgroundColor: theme.colors.dangerSoft,
     borderRadius: 8,
     gap: 8,
   },
   errorText: {
     fontSize: 13,
-    color: '#ff6b6b',
+    color: theme.colors.danger,
     fontWeight: '500',
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: SCREEN_WIDTH < 375 ? 16 : 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -789,7 +790,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: SCREEN_WIDTH < 375 ? 16 : 18,
     fontWeight: '700',
     letterSpacing: 0.5,

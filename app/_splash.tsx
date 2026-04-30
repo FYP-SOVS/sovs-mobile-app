@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, Pressable, ScrollView, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Shield, Lock, CheckCircle2, ArrowRight } from 'lucide-react-native';
@@ -86,7 +87,7 @@ export default function SplashScreen() {
               <View style={styles.slideContent}>
                 <View style={styles.iconContainer}>
                   <View style={styles.iconCircle}>
-                    <Icon size={64} color="#667eea" strokeWidth={2} />
+                    <Icon size={64} color={theme.colors.navy} strokeWidth={2} />
                   </View>
                 </View>
                 <Text style={styles.title}>{t(slide.titleKey)}</Text>
@@ -118,13 +119,13 @@ export default function SplashScreen() {
               </Pressable>
               <Pressable style={styles.nextButton} onPress={handleNext}>
                 <Text style={styles.nextButtonText}>{t('onboarding.next')}</Text>
-                <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+                <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
               </Pressable>
             </>
           ) : (
             <Pressable style={styles.getStartedButton} onPress={handleFinish}>
               <Text style={styles.getStartedButtonText}>{t('onboarding.getStarted')}</Text>
-              <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+              <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
             </Pressable>
           )}
         </View>
@@ -136,7 +137,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollView: {
     flex: 1,
@@ -159,23 +160,23 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
   description: {
     fontSize: 18,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 28,
   },
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
     paddingTop: 24,
     paddingHorizontal: 32,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   indicatorContainer: {
     flexDirection: 'row',
@@ -195,11 +196,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ddd',
+    backgroundColor: theme.colors.borderStrong,
   },
   indicatorActive: {
     width: 24,
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -213,47 +214,47 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     fontWeight: '600',
   },
   nextButton: {
     flex: 2,
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   nextButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   getStartedButton: {
     flex: 1,
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   getStartedButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,

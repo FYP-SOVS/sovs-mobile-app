@@ -45,6 +45,7 @@ export async function registerUser(data: {
   dateOfBirth: string;
   nationalId?: string;
   sessionId?: string;
+  password?: string;
 }): Promise<{ success: boolean; userId?: string; error?: string }> {
   try {
     if (!data.nationalId) {

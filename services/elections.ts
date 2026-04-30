@@ -5,6 +5,7 @@ export interface Election {
   title: string;
   description: string;
   election_date: string;
+  status?: 'open' | 'upcoming' | 'closed' | 'completed';
   candidate_count?: number;
 }
 

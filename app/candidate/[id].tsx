@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { theme } from '@/theme';
 import {
   StyleSheet,
   Text,
@@ -83,7 +84,7 @@ export default function CandidateScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#667eea" />
+        <ActivityIndicator size="large" color={theme.colors.navy} />
         <Text style={styles.loadingText}>Loading candidate...</Text>
       </View>
     );
@@ -94,11 +95,11 @@ export default function CandidateScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <ArrowLeft size={22} color="#667eea" strokeWidth={2} />
+            <ArrowLeft size={22} color={theme.colors.navy} strokeWidth={2} />
           </Pressable>
         </View>
         <View style={styles.centered}>
-          <AlertCircle size={40} color="#ef4444" strokeWidth={1.5} />
+          <AlertCircle size={40} color={theme.colors.danger} strokeWidth={1.5} />
           <Text style={styles.errorTitle}>Failed to load</Text>
           <Text style={styles.errorSubtitle}>{error}</Text>
           <Pressable style={styles.retryButton} onPress={fetchCandidate}>
@@ -116,7 +117,7 @@ export default function CandidateScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeft size={22} color="#667eea" strokeWidth={2} />
+          <ArrowLeft size={22} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
         <Text style={styles.headerTitle}>Candidate</Text>
         <View style={{ width: 44 }} />
@@ -140,7 +141,7 @@ export default function CandidateScreen() {
 
           <View style={styles.detailRow}>
             <View style={styles.detailIcon}>
-              <User size={16} color="#667eea" strokeWidth={2} />
+              <User size={16} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Full Name</Text>
@@ -153,7 +154,7 @@ export default function CandidateScreen() {
           {candidate.date_of_birth ? (
             <View style={styles.detailRow}>
               <View style={styles.detailIcon}>
-                <Calendar size={16} color="#667eea" strokeWidth={2} />
+                <Calendar size={16} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Date of Birth</Text>
@@ -165,7 +166,7 @@ export default function CandidateScreen() {
           {candidate.email ? (
             <View style={styles.detailRow}>
               <View style={styles.detailIcon}>
-                <Mail size={16} color="#667eea" strokeWidth={2} />
+                <Mail size={16} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Email</Text>
@@ -176,7 +177,7 @@ export default function CandidateScreen() {
 
           <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
             <View style={styles.detailIcon}>
-              <FileText size={16} color="#667eea" strokeWidth={2} />
+              <FileText size={16} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Application Date</Text>
@@ -188,7 +189,7 @@ export default function CandidateScreen() {
         {/* Manifesto Download */}
         <View style={styles.manifestoCard}>
           <View style={styles.manifestoHeader}>
-            <FileText size={20} color="#667eea" strokeWidth={2} />
+            <FileText size={20} color={theme.colors.navy} strokeWidth={2} />
             <Text style={styles.manifestoTitle}>Manifesto</Text>
           </View>
 
@@ -203,9 +204,9 @@ export default function CandidateScreen() {
                 disabled={downloading}
               >
                 {downloading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={theme.colors.white} size="small" />
                 ) : (
-                  <Download size={18} color="#fff" strokeWidth={2.5} />
+                  <Download size={18} color={theme.colors.white} strokeWidth={2.5} />
                 )}
                 <Text style={styles.downloadButtonText}>
                   {downloading ? 'Opening...' : 'View / Download Manifesto'}
@@ -214,7 +215,7 @@ export default function CandidateScreen() {
             </>
           ) : (
             <View style={styles.noManifesto}>
-              <AlertCircle size={18} color="#f59e0b" strokeWidth={2} />
+              <AlertCircle size={18} color={theme.colors.warning} strokeWidth={2} />
               <Text style={styles.noManifestoText}>
                 This candidate has not uploaded a manifesto yet.
               </Text>
@@ -229,15 +230,15 @@ export default function CandidateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -246,14 +247,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   centered: {
     flex: 1,
@@ -263,28 +264,28 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   loadingText: {
-    color: '#888',
+    color: theme.colors.textTertiary,
     fontSize: 15,
   },
   errorTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   errorSubtitle: {
     fontSize: 14,
-    color: '#888',
+    color: theme.colors.textTertiary,
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 12,
     paddingHorizontal: 24,
     paddingVertical: 12,
     marginTop: 8,
   },
   retryButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontWeight: '600',
     fontSize: 15,
   },
@@ -294,14 +295,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   profileCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 20,
     padding: 28,
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: '#e8e8f0',
-    shadowColor: '#667eea',
+    borderColor: theme.colors.border,
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -311,38 +312,38 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
   },
   avatarInitials: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 28,
     fontWeight: '800',
   },
   candidateName: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     textAlign: 'center',
   },
   candidateRole: {
     fontSize: 14,
-    color: '#667eea',
+    color: theme.colors.navy,
     fontWeight: '600',
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 8,
   },
   detailsCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#e8e8f0',
-    shadowColor: '#000',
+    borderColor: theme.colors.border,
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
   detailsCardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 16,
   },
   detailRow: {
@@ -360,13 +361,13 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: theme.colors.surfaceMuted,
   },
   detailIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
@@ -377,24 +378,24 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 12,
-    color: '#999',
+    color: theme.colors.textTertiary,
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   detailValue: {
     fontSize: 15,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     fontWeight: '500',
   },
   manifestoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#e8e8f0',
+    borderColor: theme.colors.border,
     gap: 14,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -408,15 +409,15 @@ const styles = StyleSheet.create({
   manifestoTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   manifestoDescription: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 20,
   },
   downloadButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 20,
@@ -424,7 +425,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   downloadButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -442,15 +443,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#fffbeb',
+    backgroundColor: theme.colors.warningSoft,
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: theme.colors.warning,
   },
   noManifestoText: {
     fontSize: 14,
-    color: '#92400e',
+    color: theme.colors.warning,
     flex: 1,
     lineHeight: 20,
   },

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, TextInput, Pressable, Alert, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Database, User, Calendar, Phone, Mail, ArrowRight, Languages } from 'lucide-react-native';
@@ -84,7 +85,7 @@ export default function GovernmentDataScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#667eea" />
+          <ActivityIndicator size="large" color={theme.colors.navy} />
           <Text style={styles.loadingText}>{t('registration.fetchingInfo')}</Text>
           <Text style={styles.loadingSubtext}>{t('registration.retrievingData')}</Text>
         </View>
@@ -98,7 +99,7 @@ export default function GovernmentDataScreen() {
         <View style={styles.content}>
           <View style={styles.errorIconContainer}>
             <View style={styles.errorIconCircle}>
-              <Database size={32} color="#667eea" strokeWidth={2} />
+              <Database size={32} color={theme.colors.navy} strokeWidth={2} />
             </View>
           </View>
           <Text style={styles.errorTitle}>{t('registration.registrationCannotContinue')}</Text>
@@ -131,7 +132,7 @@ export default function GovernmentDataScreen() {
   style={styles.languageButton}
   onPress={toggleLanguage}
 >
-              <Languages size={20} color="#667eea" strokeWidth={2} />
+              <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
             </Pressable>
           </View>
           <Text style={styles.title}>{t('registration.verifyInformation')}</Text>
@@ -144,7 +145,7 @@ export default function GovernmentDataScreen() {
           <View style={styles.infoCard}>
             <View style={styles.fieldRow}>
               <View style={styles.fieldIcon}>
-                <User size={20} color="#667eea" strokeWidth={2} />
+                <User size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.fieldContent}>
                 <Text style={styles.fieldLabel}>{t('registration.firstName')}</Text>
@@ -154,7 +155,7 @@ export default function GovernmentDataScreen() {
 
             <View style={styles.fieldRow}>
               <View style={styles.fieldIcon}>
-                <User size={20} color="#667eea" strokeWidth={2} />
+                <User size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.fieldContent}>
                 <Text style={styles.fieldLabel}>{t('registration.lastName')}</Text>
@@ -164,7 +165,7 @@ export default function GovernmentDataScreen() {
 
             <View style={styles.fieldRow}>
               <View style={styles.fieldIcon}>
-                <Calendar size={20} color="#667eea" strokeWidth={2} />
+                <Calendar size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.fieldContent}>
                 <Text style={styles.fieldLabel}>{t('registration.dateOfBirth')}</Text>
@@ -180,7 +181,7 @@ export default function GovernmentDataScreen() {
 
             <View style={styles.fieldRow}>
               <View style={styles.fieldIcon}>
-                <Phone size={20} color="#667eea" strokeWidth={2} />
+                <Phone size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.fieldContent}>
                 <Text style={styles.fieldLabel}>{t('registration.phoneNumber')}</Text>
@@ -190,7 +191,7 @@ export default function GovernmentDataScreen() {
 
             <View style={styles.fieldRow}>
               <View style={styles.fieldIcon}>
-                <Mail size={20} color="#667eea" strokeWidth={2} />
+                <Mail size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.fieldContent}>
                 <Text style={styles.fieldLabel}>
@@ -202,7 +203,7 @@ export default function GovernmentDataScreen() {
                   <TextInput
                     style={styles.emailInput}
                     placeholder={t('registration.emailPlaceholder')}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={theme.colors.textTertiary}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -216,7 +217,7 @@ export default function GovernmentDataScreen() {
 
           <Pressable style={styles.button} onPress={handleContinue}>
             <Text style={styles.buttonText}>{t('registration.confirmContinue')}</Text>
-            <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+            <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
           </Pressable>
         </View>
       </ScrollView>
@@ -227,7 +228,7 @@ export default function GovernmentDataScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -243,25 +244,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
   },
   loadingText: {
     marginTop: 24,
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   loadingSubtext: {
     marginTop: 8,
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.textSecondary,
   },
   header: {
     padding: 32,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -270,39 +271,39 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepBadge: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   languageButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667eea',
+    color: theme.colors.navy,
     letterSpacing: 0.5,
   },
   title: {
     fontSize: 36,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 24,
   },
   form: {
@@ -310,30 +311,30 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: 24,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   fieldRow: {
     flexDirection: 'row',
     marginBottom: 24,
     paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   fieldIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -344,7 +345,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666',
+    color: theme.colors.textSecondary,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -352,38 +353,38 @@ const styles = StyleSheet.create({
   fieldValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   optional: {
     fontSize: 11,
     fontWeight: '400',
-    color: '#999',
+    color: theme.colors.textTertiary,
     textTransform: 'none',
   },
   emailInput: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     borderBottomWidth: 2,
-    borderBottomColor: '#667eea',
+    borderBottomColor: theme.colors.navy,
     paddingVertical: 4,
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -396,22 +397,22 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   errorTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,

@@ -2,6 +2,37 @@ import { FUNCTIONS_BASE_URL } from './supabase';
 
 const API_BASE_URL = FUNCTIONS_BASE_URL;
 
+export interface ApiUser {
+  user_id?: string;
+  name?: string;
+  surname?: string;
+  phone_number?: string;
+  email?: string;
+  date_of_birth?: string;
+  status?: 'pending' | 'verified' | 'suspended';
+}
+
+export interface GovernmentRecord {
+  name: string;
+  surname: string;
+  dob: string;
+  phone_number: string;
+}
+
+export interface DiditSessionResponse {
+  session_id?: string;
+  session_url?: string;
+  url?: string;
+  status?: string;
+  decision_status?: string;
+  user_data?: {
+    first_name?: string;
+    last_name?: string;
+    date_of_birth?: string;
+    document_number?: string;
+  };
+}
+
 /**
  * Call a cloud function endpoint
  */
@@ -84,8 +115,8 @@ export const usersAPI = {
   /**
    * Get user by ID
    */
-  getById: async (userId: string) => {
-    return callFunction(`users/${userId}`, {
+  getById: async (userId: string): Promise<ApiUser | null> => {
+    return callFunction<ApiUser | null>(`users/${userId}`, {
       method: 'GET',
     });
   },
@@ -93,9 +124,9 @@ export const usersAPI = {
   /**
    * Get user by phone or email
    */
-  getByPhoneOrEmail: async (phoneOrEmail: string) => {
+  getByPhoneOrEmail: async (phoneOrEmail: string): Promise<ApiUser | null> => {
     try {
-      const response = await callFunction<{ user: any }>('find-user', {
+      const response = await callFunction<{ user: ApiUser | null }>('find-user', {
         method: 'GET',
         params: { phone_or_email: phoneOrEmail },
       });
@@ -130,8 +161,8 @@ export const governmentDBAPI = {
   /**
    * Get government record by national ID
    */
-  getByNationalId: async (nationalId: string) => {
-    return callFunction(`government-db/${nationalId}`, {
+  getByNationalId: async (nationalId: string): Promise<GovernmentRecord | null> => {
+    return callFunction<GovernmentRecord | null>(`government-db/${nationalId}`, {
       method: 'GET',
     });
   },
@@ -151,8 +182,8 @@ export const diditSessionAPI = {
     metadata?: any;
     language?: string;
     returnTo?: string;
-  }) => {
-    return callFunction('didit-session', {
+  }): Promise<DiditSessionResponse> => {
+    return callFunction<DiditSessionResponse>('didit-session', {
       method: 'POST',
       body: {
         email: params.email,
@@ -168,8 +199,8 @@ export const diditSessionAPI = {
   /**
    * Get session results
    */
-  getResults: async (sessionId: string) => {
-    return callFunction(`didit-get-session/${sessionId}`, {
+  getResults: async (sessionId: string): Promise<DiditSessionResponse> => {
+    return callFunction<DiditSessionResponse>(`didit-get-session/${sessionId}`, {
       method: 'GET',
     });
   },

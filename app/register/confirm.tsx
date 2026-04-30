@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, ScrollView, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, User, Calendar, Phone, Mail, Shield, Sparkles, Languages } from 'lucide-react-native';
@@ -65,7 +66,7 @@ export default function ConfirmRegistrationScreen() {
               <Text style={styles.stepBadgeText}>{t('registration.step3')}</Text>
             </View>
             <Pressable style={styles.languageButton} onPress={toggleLanguage}   accessibilityRole="button">
-              <Languages size={20} color="#667eea" strokeWidth={2} />
+              <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
             </Pressable>
           </View>
           <Text style={styles.title}>{t('registration.confirmRegistration')}</Text>
@@ -78,7 +79,7 @@ export default function ConfirmRegistrationScreen() {
           <View style={styles.infoCard}>
             <View style={styles.cardHeader}>
               <View style={styles.cardHeaderIcon}>
-                <Shield size={24} color="#667eea" strokeWidth={2} />
+                <Shield size={24} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <Text style={styles.cardHeaderText}>{t('profile.personalInformation')}</Text>
             </View>
@@ -86,7 +87,7 @@ export default function ConfirmRegistrationScreen() {
             <View style={styles.infoSection}>
               <View style={styles.infoRow}>
                 <View style={styles.infoIcon}>
-                  <User size={18} color="#667eea" strokeWidth={2} />
+                  <User size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.name')}</Text>
@@ -96,7 +97,7 @@ export default function ConfirmRegistrationScreen() {
 
               <View style={styles.infoRow}>
                 <View style={styles.infoIcon}>
-                  <Calendar size={18} color="#667eea" strokeWidth={2} />
+                  <Calendar size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.dateOfBirth')}</Text>
@@ -112,7 +113,7 @@ export default function ConfirmRegistrationScreen() {
 
               <View style={styles.infoRow}>
                 <View style={styles.infoIcon}>
-                  <Phone size={18} color="#667eea" strokeWidth={2} />
+                  <Phone size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.phoneNumber')}</Text>
@@ -122,14 +123,14 @@ export default function ConfirmRegistrationScreen() {
 
               <View style={styles.infoRow}>
                 <View style={styles.infoIcon}>
-                  <Phone size={18} color="#667eea" strokeWidth={2} />
+                  <Phone size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.phoneNumber')}</Text>
                   <TextInput
                     style={styles.input}
                     placeholder={t('registration.phoneNumber')}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={theme.colors.textTertiary}
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
                     keyboardType="phone-pad"
@@ -140,14 +141,14 @@ export default function ConfirmRegistrationScreen() {
 
               <View style={styles.infoRow}>
                 <View style={styles.infoIcon}>
-                  <Mail size={18} color="#667eea" strokeWidth={2} />
+                  <Mail size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.email')} ({t('registration.optional')})</Text>
                   <TextInput
                     style={styles.input}
                     placeholder={t('registration.emailPlaceholder')}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={theme.colors.textTertiary}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -159,7 +160,7 @@ export default function ConfirmRegistrationScreen() {
 
               <View style={[styles.infoRow, styles.lastRow]}>
                 <View style={styles.infoIcon}>
-                  <Shield size={18} color="#667eea" strokeWidth={2} />
+                  <Shield size={18} color={theme.colors.navy} strokeWidth={2} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>{t('registration.role')}</Text>
@@ -171,15 +172,15 @@ export default function ConfirmRegistrationScreen() {
 
           <View style={styles.verificationCard}>
             <View style={styles.verificationItem}>
-              <CheckCircle2 size={20} color="#10b981" strokeWidth={2.5} />
+              <CheckCircle2 size={20} color={theme.colors.success} strokeWidth={2.5} />
               <Text style={styles.verificationText}>{t('registration.identityVerified')}</Text>
             </View>
             <View style={styles.verificationItem}>
-              <CheckCircle2 size={20} color="#10b981" strokeWidth={2.5} />
+              <CheckCircle2 size={20} color={theme.colors.success} strokeWidth={2.5} />
               <Text style={styles.verificationText}>{t('registration.dataRetrieved')}</Text>
             </View>
             <View style={styles.verificationItem}>
-              <CheckCircle2 size={20} color="#10b981" strokeWidth={2.5} />
+              <CheckCircle2 size={20} color={theme.colors.success} strokeWidth={2.5} />
               <Text style={styles.verificationText}>{t('registration.dataEncrypted')}</Text>
             </View>
           </View>
@@ -190,10 +191,10 @@ export default function ConfirmRegistrationScreen() {
             disabled={isCreating}
           >
             {isCreating ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.white} />
             ) : (
               <>
-                <Sparkles size={20} color="#fff" strokeWidth={2.5} />
+                <Sparkles size={20} color={theme.colors.white} strokeWidth={2.5} />
                 <Text style={styles.buttonText}>{t('registration.createAccount')}</Text>
               </>
             )}
@@ -207,7 +208,7 @@ export default function ConfirmRegistrationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -216,9 +217,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 32,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -227,39 +228,39 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepBadge: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   languageButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667eea',
+    color: theme.colors.navy,
     letterSpacing: 0.5,
   },
   title: {
     fontSize: 36,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 24,
   },
   content: {
@@ -267,17 +268,17 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: 24,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -285,13 +286,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 20,
     borderBottomWidth: 2,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   cardHeaderIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -299,7 +300,7 @@ const styles = StyleSheet.create({
   cardHeaderText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   infoSection: {
     gap: 0,
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: theme.colors.surfaceMuted,
   },
   lastRow: {
     marginBottom: 0,
@@ -320,7 +321,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: theme.colors.textSecondary,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -339,24 +340,24 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   input: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     borderBottomWidth: 2,
-    borderBottomColor: '#667eea',
+    borderBottomColor: theme.colors.navy,
     paddingVertical: 4,
     marginTop: 4,
   },
   verificationCard: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: theme.colors.successSoft,
     borderRadius: 20,
     padding: 20,
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: '#10b981',
+    borderColor: theme.colors.success,
   },
   verificationItem: {
     flexDirection: 'row',
@@ -365,19 +366,19 @@ const styles = StyleSheet.create({
   },
   verificationText: {
     fontSize: 15,
-    color: '#065f46',
+    color: theme.colors.success,
     marginLeft: 12,
     fontWeight: '500',
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, Dimensions, ScrollView, Platform, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -80,7 +81,7 @@ export default function IdentityVerificationScreen() {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -432,7 +433,7 @@ export default function IdentityVerificationScreen() {
               <Text style={styles.stepBadgeText}>{t('registration.step1')}</Text>
             </View>
             <Pressable style={styles.languageButton} onPress={toggleLanguage} testID="language-button">
-              <Languages size={20} color="#667eea" strokeWidth={2} />
+              <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
             </Pressable>
           </View>
           <Text style={styles.title}>{t('registration.identityVerification')}</Text>
@@ -442,7 +443,7 @@ export default function IdentityVerificationScreen() {
         <ScrollView contentContainerStyle={styles.verifyingContainer}>
           <View style={styles.verifyingIconContainer}>
             <View style={styles.verifyingIconCircle}>
-              <Loader size={48} color="#667eea" strokeWidth={2} />
+              <Loader size={48} color={theme.colors.navy} strokeWidth={2} />
             </View>
           </View>
           <Text style={styles.verifyingText}>{t('registration.verifying')}</Text>
@@ -467,7 +468,7 @@ export default function IdentityVerificationScreen() {
             <Text style={styles.stepBadgeText}>{t('registration.step1')}</Text>
           </View>
           <Pressable style={styles.languageButton} onPress={toggleLanguage}  testID="language-toggle">
-            <Languages size={20} color="#667eea" strokeWidth={2} />
+            <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
           </Pressable>
         </View>
         <Text style={styles.title}>{t('registration.identityVerification')}</Text>
@@ -482,7 +483,7 @@ export default function IdentityVerificationScreen() {
       >
         <View style={styles.iconContainer}>
           <View style={styles.iconCircle}>
-            <Shield size={SCREEN_WIDTH < 375 ? 48 : 64} color="#667eea" strokeWidth={2} />
+            <Shield size={SCREEN_WIDTH < 375 ? 48 : 64} color={theme.colors.navy} strokeWidth={2} />
           </View>
         </View>
 
@@ -495,7 +496,7 @@ export default function IdentityVerificationScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your phone number"
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.colors.textTertiary}
             keyboardType="phone-pad"
             autoComplete="tel"
             value={phoneNumber}
@@ -506,7 +507,7 @@ export default function IdentityVerificationScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.colors.textTertiary}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -540,10 +541,10 @@ export default function IdentityVerificationScreen() {
           disabled={isCreatingSession || isVerifying || !phoneNumber.trim() || !email.trim()}
         >
           {isCreatingSession ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={theme.colors.white} />
           ) : (
             <>
-              <ExternalLink size={20} color="#fff" strokeWidth={2.5} />
+              <ExternalLink size={20} color={theme.colors.white} strokeWidth={2.5} />
               <Text style={styles.buttonText}>Start Verification</Text>
             </>
           )}
@@ -556,14 +557,14 @@ export default function IdentityVerificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   header: {
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
     paddingTop: SCREEN_WIDTH < 375 ? 50 : 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -572,39 +573,39 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepBadge: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   languageButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667eea',
+    color: theme.colors.navy,
     letterSpacing: 0.5,
   },
   title: {
     fontSize: SCREEN_WIDTH < 375 ? 24 : 28,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 24,
   },
   content: {
@@ -621,15 +622,15 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH < 375 ? 100 : 120,
     height: SCREEN_WIDTH < 375 ? 100 : 120,
     borderRadius: SCREEN_WIDTH < 375 ? 50 : 60,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   description: {
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     marginBottom: SCREEN_WIDTH < 375 ? 24 : 32,
     lineHeight: 24,
@@ -637,27 +638,27 @@ const styles = StyleSheet.create({
   },
   formCard: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 16,
     padding: SCREEN_WIDTH < 375 ? 16 : 20,
     marginBottom: SCREEN_WIDTH < 375 ? 20 : 24,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   formLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.colors.borderStrong,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#111827',
+    color: theme.colors.textPrimary,
   },
   stepsList: {
     width: '100%',
@@ -668,17 +669,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     padding: SCREEN_WIDTH < 375 ? 12 : 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   stepNumber: {
     width: SCREEN_WIDTH < 375 ? 28 : 32,
     height: SCREEN_WIDTH < 375 ? 28 : 32,
     borderRadius: SCREEN_WIDTH < 375 ? 14 : 16,
-    backgroundColor: '#667eea',
-    color: '#fff',
+    backgroundColor: theme.colors.navy,
+    color: theme.colors.white,
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
     fontWeight: '700',
     textAlign: 'center',
@@ -689,10 +690,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: SCREEN_WIDTH < 375 ? 16 : 18,
     width: '100%',
@@ -700,7 +701,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -711,7 +712,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: SCREEN_WIDTH < 375 ? 16 : 18,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -721,7 +722,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     minHeight: '100%',
   },
   verifyingIconContainer: {
@@ -731,23 +732,23 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH < 375 ? 100 : 120,
     height: SCREEN_WIDTH < 375 ? 100 : 120,
     borderRadius: SCREEN_WIDTH < 375 ? 50 : 60,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   verifyingText: {
     fontSize: SCREEN_WIDTH < 375 ? 20 : 24,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     textAlign: 'center',
     paddingHorizontal: SCREEN_WIDTH < 375 ? 16 : 0,
   },
   verifyingSubtext: {
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: SCREEN_WIDTH < 375 ? 16 : 0,
@@ -755,7 +756,7 @@ const styles = StyleSheet.create({
   statusMessage: {
     marginTop: 16,
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     textAlign: 'center',
   },
 });

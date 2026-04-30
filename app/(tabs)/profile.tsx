@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { theme } from '@/theme';
 import { StyleSheet, Text, View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Calendar, Shield, LogOut, Languages } from 'lucide-react-native';
@@ -91,7 +92,7 @@ export default function ProfileScreen() {
       }
 
       if (!session && !authUser) {
-        router.replace('/login');
+        router.replace('/login' as any);
         return;
       }
 
@@ -119,10 +120,10 @@ export default function ProfileScreen() {
               setIsLoggingOut(true);
               await signOut();
               await AsyncStorage.removeItem('hasSeenOnboarding');
-              router.replace('/login');
+              router.replace('/login' as any);
             } catch (error) {
               console.error('Logout error:', error);
-              router.replace('/login');
+              router.replace('/login' as any);
             } finally {
               setIsLoggingOut(false);
             }
@@ -143,7 +144,7 @@ export default function ProfileScreen() {
           <Text style={styles.headerTitle}>{t('profile.title')}</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#667eea" />
+          <ActivityIndicator size="large" color={theme.colors.navy} />
           <Text style={styles.loadingText}>{t('common.loading')}</Text>
         </View>
       </View>
@@ -175,14 +176,14 @@ export default function ProfileScreen() {
           onPress={toggleLanguage}
           testID="language-button"
         >
-          <Languages size={24} color="#667eea" strokeWidth={2} />
+          <Languages size={24} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <User size={48} color="#667eea" strokeWidth={2} />
+            <User size={48} color={theme.colors.navy} strokeWidth={2} />
           </View>
           <Text style={styles.name} testID="profile-full-name">
             {userData.firstName} {userData.lastName}
@@ -194,7 +195,7 @@ export default function ProfileScreen() {
           <Text style={styles.languageSectionTitle}>{t('profile.language')}</Text>
           <Pressable style={styles.languageButton} onPress={toggleLanguage} testID="language-button">
             <View style={styles.languageButtonContent}>
-              <Languages size={24} color="#667eea" strokeWidth={2} />
+              <Languages size={24} color={theme.colors.navy} strokeWidth={2} />
               <View style={styles.languageButtonText}>
                 <Text style={styles.languageText}>
                   {language === 'en' ? '🇹🇷 Türkçe' : '🇬🇧 English'}
@@ -212,7 +213,7 @@ export default function ProfileScreen() {
 
           <View style={styles.infoRow}>
             <View style={styles.infoIcon}>
-              <User size={20} color="#667eea" strokeWidth={2} />
+              <User size={20} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>{t('profile.fullName')}</Text>
@@ -224,7 +225,7 @@ export default function ProfileScreen() {
 
           <View style={styles.infoRow}>
             <View style={styles.infoIcon}>
-              <Calendar size={20} color="#667eea" strokeWidth={2} />
+              <Calendar size={20} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>{t('registration.dateOfBirth')}</Text>
@@ -241,7 +242,7 @@ export default function ProfileScreen() {
 
           <View style={styles.infoRow}>
             <View style={styles.infoIcon}>
-              <Phone size={20} color="#667eea" strokeWidth={2} />
+              <Phone size={20} color={theme.colors.navy} strokeWidth={2} />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>{t('registration.phoneNumber')}</Text>
@@ -252,7 +253,7 @@ export default function ProfileScreen() {
           {userData.email && (
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
-                <Mail size={20} color="#667eea" strokeWidth={2} />
+                <Mail size={20} color={theme.colors.navy} strokeWidth={2} />
               </View>
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>{t('registration.email')}</Text>
@@ -267,10 +268,10 @@ export default function ProfileScreen() {
                 size={20}
                 color={
                   userData.status === 'verified'
-                    ? '#10b981'
+                    ? theme.colors.success
                     : userData.status === 'suspended'
-                    ? '#ef4444'
-                    : '#f59e0b'
+                    ? theme.colors.danger
+                    : theme.colors.warning
                 }
                 strokeWidth={2}
               />
@@ -302,10 +303,10 @@ export default function ProfileScreen() {
           testID="logout-button"
         >
           {isLoggingOut ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={theme.colors.white} />
           ) : (
             <>
-              <LogOut size={20} color="#fff" strokeWidth={2.5} />
+              <LogOut size={20} color={theme.colors.white} strokeWidth={2.5} />
               <Text style={styles.logoutButtonText}>{t('profile.logout')}</Text>
             </>
           )}
@@ -318,57 +319,57 @@ export default function ProfileScreen() {
 // -------------------- Styles --------------------
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: 28, fontWeight: '800', color: '#1a1a1a', letterSpacing: -0.5 },
+  headerTitle: { fontSize: 28, fontWeight: '800', color: theme.colors.textPrimary, letterSpacing: -0.5 },
   languageHeaderButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   scrollContent: { padding: 24 },
-  profileHeader: { alignItems: 'center', marginBottom: 24, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  avatar: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#f0f4ff', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#667eea', marginBottom: 16 },
-  name: { fontSize: 24, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },
-  role: { fontSize: 14, color: '#667eea', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
+  profileHeader: { alignItems: 'center', marginBottom: 24, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+  avatar: { width: 100, height: 100, borderRadius: 50, backgroundColor: theme.colors.goldSoft, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: theme.colors.navy, marginBottom: 16 },
+  name: { fontSize: 24, fontWeight: '700', color: theme.colors.textPrimary, marginBottom: 4 },
+  role: { fontSize: 14, color: theme.colors.navy, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
   languageSection: { marginBottom: 24 },
-  languageSectionTitle: { fontSize: 18, fontWeight: '700', color: '#1a1a1a', marginBottom: 12 },
-  languageButton: { backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 2, borderColor: '#667eea', shadowColor: '#667eea', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
+  languageSectionTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.textPrimary, marginBottom: 12 },
+  languageButton: { backgroundColor: theme.colors.white, borderRadius: 16, padding: 20, borderWidth: 2, borderColor: theme.colors.navy, shadowColor: theme.colors.navy, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
   languageButtonContent: { flexDirection: 'row', alignItems: 'center' },
   languageButtonText: { marginLeft: 16, flex: 1 },
-  languageText: { fontSize: 20, fontWeight: '700', color: '#667eea', marginBottom: 4 },
-  languageSubtext: { fontSize: 14, color: '#666' },
+  languageText: { fontSize: 20, fontWeight: '700', color: theme.colors.navy, marginBottom: 4 },
+  languageSubtext: { fontSize: 14, color: theme.colors.textSecondary },
   section: { marginBottom: 32 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1a1a1a', marginBottom: 16 },
-  infoRow: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#f0f0f0' },
-  infoIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#f0f4ff', justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.textPrimary, marginBottom: 16 },
+  infoRow: { backgroundColor: theme.colors.white, borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.border },
+  infoIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.goldSoft, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   infoContent: { flex: 1 },
-  infoLabel: { fontSize: 12, fontWeight: '600', color: '#666', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  infoValue: { fontSize: 16, fontWeight: '600', color: '#1a1a1a' },
-  logoutButton: { backgroundColor: '#ef4444', borderRadius: 16, padding: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 8, shadowColor: '#ef4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
-  logoutButtonText: { color: '#fff', fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
+  infoLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.textSecondary, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  infoValue: { fontSize: 16, fontWeight: '600', color: theme.colors.textPrimary },
+  logoutButton: { backgroundColor: theme.colors.danger, borderRadius: 16, padding: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 8, shadowColor: theme.colors.danger, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
+  logoutButtonText: { color: theme.colors.white, fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
   logoutButtonDisabled: { opacity: 0.6 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  loadingText: { marginTop: 16, fontSize: 16, color: '#666' },
-  errorText: { fontSize: 16, color: '#ef4444', marginBottom: 16, textAlign: 'center' },
-  retryButton: { backgroundColor: '#667eea', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
-  retryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  statusVerified: { color: '#10b981' },
-  statusSuspended: { color: '#ef4444' },
-  statusPending: { color: '#f59e0b' },
+  loadingText: { marginTop: 16, fontSize: 16, color: theme.colors.textSecondary },
+  errorText: { fontSize: 16, color: theme.colors.danger, marginBottom: 16, textAlign: 'center' },
+  retryButton: { backgroundColor: theme.colors.navy, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
+  retryButtonText: { color: theme.colors.white, fontSize: 16, fontWeight: '600' },
+  statusVerified: { color: theme.colors.success },
+  statusSuspended: { color: theme.colors.danger },
+  statusPending: { color: theme.colors.warning },
 });

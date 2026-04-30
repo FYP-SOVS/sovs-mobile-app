@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { theme } from '@/theme';
 import { useRouter } from 'expo-router';
 import { CheckCircle2, ArrowRight, Languages, Mail } from 'lucide-react-native';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -19,13 +20,13 @@ export default function RegistrationSuccessScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable style={styles.languageButton} onPress={toggleLanguage}>
-          <Languages size={24} color="#667eea" strokeWidth={2} />
+          <Languages size={24} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
       </View>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <View style={styles.iconCircle}>
-            <CheckCircle2 size={64} color="#10b981" strokeWidth={2.5} />
+            <CheckCircle2 size={64} color={theme.colors.success} strokeWidth={2.5} />
           </View>
         </View>
 
@@ -51,7 +52,7 @@ export default function RegistrationSuccessScreen() {
 
         <View style={styles.emailConfirmCard}>
           <View style={styles.emailIconContainer}>
-            <Mail size={24} color="#667eea" strokeWidth={2} />
+            <Mail size={24} color={theme.colors.navy} strokeWidth={2} />
           </View>
           <Text style={styles.emailTitle}>Confirm Your Email</Text>
           <Text style={styles.emailText}>
@@ -61,7 +62,7 @@ export default function RegistrationSuccessScreen() {
 
         <Pressable style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>{t('registration.continueToDashboard')}</Text>
-          <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+          <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
         </Pressable>
       </View>
     </View>
@@ -71,7 +72,7 @@ export default function RegistrationSuccessScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   header: {
     position: 'absolute',
@@ -83,12 +84,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
-    shadowColor: '#000',
+    borderColor: theme.colors.navy,
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -110,40 +111,40 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: theme.colors.successSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#10b981',
+    borderColor: theme.colors.success,
   },
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 16,
     padding: 24,
     width: '100%',
     marginBottom: 32,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   infoItem: {
     flexDirection: 'row',
@@ -155,32 +156,32 @@ const styles = StyleSheet.create({
   },
   infoIcon: {
     fontSize: 20,
-    color: '#10b981',
+    color: theme.colors.success,
     fontWeight: '700',
     marginRight: 12,
     width: 24,
   },
   infoText: {
     fontSize: 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     fontWeight: '600',
     flex: 1,
   },
   emailConfirmCard: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     borderRadius: 16,
     padding: 20,
     width: '100%',
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
     alignItems: 'center',
   },
   emailIconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -188,18 +189,18 @@ const styles = StyleSheet.create({
   emailTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
   },
   emailText: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 18,
     width: '100%',
@@ -207,14 +208,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,

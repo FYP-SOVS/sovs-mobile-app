@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { theme } from '@/theme';
 import {
   StyleSheet,
   Text,
@@ -217,7 +218,7 @@ export default function ConfirmationScreen() {
   style={styles.languageButton}
   onPress={toggleLanguage}
 >
-  <Languages size={20} color="#667eea" strokeWidth={2} />
+  <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
 </Pressable>
 
           </View>
@@ -232,7 +233,7 @@ export default function ConfirmationScreen() {
           <View style={styles.infoCard}>
             <View style={styles.cardHeader}>
               <View style={styles.cardHeaderIcon}>
-                <CheckCircle size={24} color="#6bcf7f" strokeWidth={2} />
+                <CheckCircle size={24} color={theme.colors.success} strokeWidth={2} />
               </View>
               <Text style={styles.cardHeaderText}>Verified Information</Text>
             </View>
@@ -277,7 +278,7 @@ export default function ConfirmationScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="+1234567890"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.colors.textTertiary}
                 value={phoneNumber}
                 onChangeText={(text) => setPhoneNumber(text)}
                 onFocus={handleInputFocus}
@@ -294,7 +295,7 @@ export default function ConfirmationScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="user@example.com"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.colors.textTertiary}
                 value={email}
                 onChangeText={(text) => setEmail(text)}
                 onFocus={handleInputFocus}
@@ -318,7 +319,7 @@ export default function ConfirmationScreen() {
           {/* Error Display */}
           {errorMessage ? (
             <View style={styles.errorBox}>
-              <AlertCircle size={20} color="#dc2626" strokeWidth={2} />
+              <AlertCircle size={20} color={theme.colors.danger} strokeWidth={2} />
               <Text style={styles.errorBoxText}>{errorMessage}</Text>
             </View>
           ) : null}
@@ -329,11 +330,11 @@ export default function ConfirmationScreen() {
             disabled={isCreating}
           >
             {isCreating ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.white} />
             ) : (
               <>
                 <Text style={styles.buttonText}>Complete Registration</Text>
-                <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+                <ArrowRight size={20} color={theme.colors.white} strokeWidth={2.5} />
               </>
             )}
           </Pressable>
@@ -346,7 +347,7 @@ export default function ConfirmationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -355,9 +356,9 @@ const styles = StyleSheet.create({
   header: {
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
     paddingTop: SCREEN_WIDTH < 375 ? 50 : 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -366,56 +367,56 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepBadge: {
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   languageButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667eea',
+    color: theme.colors.navy,
     letterSpacing: 0.5,
   },
   title: {
     fontSize: SCREEN_WIDTH < 375 ? 24 : 28,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: SCREEN_WIDTH < 375 ? 14 : 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     lineHeight: 24,
   },
   content: {
     padding: SCREEN_WIDTH < 375 ? 20 : 32,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: SCREEN_WIDTH < 375 ? 16 : 24,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -423,13 +424,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 20,
     borderBottomWidth: 2,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   cardHeaderIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e7f5e9',
+    backgroundColor: theme.colors.successSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -437,7 +438,7 @@ const styles = StyleSheet.create({
   cardHeaderText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   infoSection: {
     gap: 0,
@@ -446,12 +447,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: theme.colors.surfaceMuted,
   },
   fieldLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: theme.colors.textSecondary,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -459,25 +460,25 @@ const styles = StyleSheet.create({
   fieldValue: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
   },
   formCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 24,
     padding: SCREEN_WIDTH < 375 ? 16 : 24,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
   },
   formTitle: {
     fontSize: SCREEN_WIDTH < 375 ? 18 : 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 24,
   },
   inputWrapper: {
@@ -486,40 +487,40 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: SCREEN_WIDTH < 375 ? 13 : 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
     borderRadius: 12,
     padding: SCREEN_WIDTH < 375 ? 14 : 16,
     fontSize: SCREEN_WIDTH < 375 ? 15 : 16,
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     borderWidth: 2,
-    borderColor: '#f0f0f0',
+    borderColor: theme.colors.border,
     minHeight: 50,
   },
   infoBox: {
-    backgroundColor: '#e7f5e9',
+    backgroundColor: theme.colors.successSoft,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#6bcf7f',
+    borderColor: theme.colors.success,
   },
   infoBoxText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#2d5016',
+    color: theme.colors.success,
     lineHeight: 22,
   },
   errorBox: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: theme.colors.dangerSoft,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#dc2626',
+    borderColor: theme.colors.danger,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -528,18 +529,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#dc2626',
+    color: theme.colors.danger,
     lineHeight: 22,
   },
   button: {
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: SCREEN_WIDTH < 375 ? 16 : 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -550,7 +551,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: SCREEN_WIDTH < 375 ? 16 : 18,
     fontWeight: '700',
     letterSpacing: 0.5,

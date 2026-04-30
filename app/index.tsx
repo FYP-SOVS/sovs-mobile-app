@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { theme } from '@/theme';
 import { Link } from 'expo-router';
 import { Shield, Languages } from 'lucide-react-native';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -14,13 +15,13 @@ export default function WelcomeScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable style={styles.languageButton} onPress={toggleLanguage}>
-          <Languages size={24} color="#667eea" strokeWidth={2} />
+          <Languages size={24} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
       </View>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <View style={styles.iconCircle}>
-            <Shield size={48} color="#667eea" strokeWidth={2} />
+            <Shield size={48} color={theme.colors.navy} strokeWidth={2} />
           </View>
         </View>
         
@@ -36,7 +37,7 @@ export default function WelcomeScreen() {
               <Text style={styles.primaryButtonText}>{t('welcome.getStarted')}</Text>
             </Pressable>
           </Link>
-          <Link href="/login" asChild>
+          <Link href={'/login' as any} asChild>
             <Pressable style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Sign In with OTP</Text>
             </Pressable>
@@ -50,7 +51,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   header: {
     position: 'absolute',
@@ -62,12 +63,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#667eea',
-    shadowColor: '#000',
+    borderColor: theme.colors.navy,
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -89,16 +90,16 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
   },
   appName: {
     fontSize: 42,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: theme.colors.textPrimary,
     marginBottom: 4,
     textAlign: 'center',
     letterSpacing: -0.5,
@@ -106,13 +107,13 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 24,
     fontWeight: '300',
-    color: '#667eea',
+    color: theme.colors.navy,
     marginBottom: 24,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 48,
@@ -124,34 +125,34 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     width: '100%',
-    backgroundColor: '#667eea',
+    backgroundColor: theme.colors.navy,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
-    shadowColor: '#667eea',
+    shadowColor: theme.colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   primaryButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   secondaryButton: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
     width: '100%',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: theme.colors.navy,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#000',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   secondaryButtonText: {
-    color: '#667eea',
+    color: theme.colors.navy,
     fontSize: 18,
     fontWeight: '600',
   },
