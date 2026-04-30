@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { theme } from '@/theme';
-import { StyleSheet, Text, View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, Alert, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Calendar, Shield, LogOut, Languages } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -107,6 +107,34 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
+    const performLogout = async () => {
+      if (isLoggingOut) return;
+
+      setIsLoggingOut(true);
+      try {
+        await Promise.allSettled([
+          signOut(),
+          AsyncStorage.removeItem('hasSeenOnboarding'),
+        ]);
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        router.replace('/login' as any);
+        setIsLoggingOut(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const shouldLogout =
+        typeof window === 'undefined' ||
+        window.confirm(`${t('profile.logout')}\n\n${t('profile.logoutConfirm')}`);
+
+      if (shouldLogout) {
+        void performLogout();
+      }
+      return;
+    }
+
     Alert.alert(
       t('profile.logout'),
       t('profile.logoutConfirm'),
@@ -115,19 +143,7 @@ export default function ProfileScreen() {
         {
           text: t('profile.logout'),
           style: 'destructive',
-          onPress: async () => {
-            try {
-              setIsLoggingOut(true);
-              await signOut();
-              await AsyncStorage.removeItem('hasSeenOnboarding');
-              router.replace('/login' as any);
-            } catch (error) {
-              console.error('Logout error:', error);
-              router.replace('/login' as any);
-            } finally {
-              setIsLoggingOut(false);
-            }
-          },
+          onPress: performLogout,
         },
       ]
     );

@@ -55,7 +55,7 @@ it('logout clears storage and navigates home', async () => {
 
   // Wait for AsyncStorage.removeItem to be called
   expect(AsyncStorage.removeItem).toHaveBeenCalledWith('hasSeenOnboarding');
-  expect(mockReplace).toHaveBeenCalledWith('/');
+  expect(mockReplace).toHaveBeenCalledWith('/login');
 });
 
 });

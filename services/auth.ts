@@ -164,6 +164,7 @@ export async function registerUser(data: {
 // Development mode: Set to true to use mock OTP (bypasses Supabase Auth)
 // Set to false to use real Supabase Auth OTP (requires SMS/Email providers configured)
 const USE_MOCK_OTP = false; // Using real Supabase Auth OTP
+const SIGN_OUT_TIMEOUT_MS = 1500;
 
 // In-memory storage for mock OTPs (for development/testing)
 const mockOTPStore: Record<string, { code: string; expiresAt: number }> = {};
@@ -337,14 +338,21 @@ export async function verifyOTP(
  */
 export async function signOut(): Promise<{ success: boolean; error?: string }> {
   try {
-    // In dev mode, clear AsyncStorage
+    await AsyncStorage.removeItem('dev_user_session').catch(() => {});
+
+    // In dev mode, clearing AsyncStorage is enough.
     if (USE_MOCK_OTP) {
-      await AsyncStorage.removeItem('dev_user_session');
       console.log('✅ [DEV MODE] User session cleared');
       return { success: true };
     }
-    
-    const { error } = await supabase.auth.signOut();
+
+    const { error } = await Promise.race([
+      supabase.auth.signOut(),
+      new Promise<{ error: Error }>((resolve) => {
+        setTimeout(() => resolve({ error: new Error('Sign out timed out') }), SIGN_OUT_TIMEOUT_MS);
+      }),
+    ]);
+
     if (error) {
       return { success: false, error: error.message };
     }

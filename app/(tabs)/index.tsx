@@ -20,6 +20,7 @@ export default function DashboardScreen() {
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [error, setError] = useState('');
 
   const fetchElections = useCallback(async () => {
@@ -45,9 +46,18 @@ export default function DashboardScreen() {
   };
 
   const handleLogout = async () => {
-    await signOut();
-    await AsyncStorage.removeItem('hasSeenOnboarding');
-    router.replace('/');
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      await Promise.allSettled([
+        signOut(),
+        AsyncStorage.removeItem('hasSeenOnboarding'),
+      ]);
+    } finally {
+      router.replace('/login' as any);
+      setIsLoggingOut(false);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -74,8 +84,18 @@ export default function DashboardScreen() {
             <Text style={styles.subWelcomeText}>Secure Online Voting</Text>
           </View>
         </View>
-        <Pressable style={styles.logoutButton} onPress={handleLogout} testID="logout-button">
-          <LogOut size={20} color={theme.colors.navy} strokeWidth={2} />
+        <Pressable
+          style={[styles.logoutButton, isLoggingOut && styles.logoutButtonDisabled]}
+          onPress={handleLogout}
+          disabled={isLoggingOut}
+          hitSlop={8}
+          testID="logout-button"
+        >
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color={theme.colors.navy} />
+          ) : (
+            <LogOut size={20} color={theme.colors.navy} strokeWidth={2} />
+          )}
         </Pressable>
       </View>
 
@@ -189,6 +209,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  logoutButtonDisabled: {
+    opacity: 0.7,
   },
   scrollContent: {
     padding: 24,
