@@ -176,7 +176,7 @@ export default function ProfileScreen() {
           onPress={toggleLanguage}
           testID="language-button"
         >
-          <Languages size={24} color={theme.colors.navy} strokeWidth={2} />
+          <Languages size={20} color={theme.colors.navy} strokeWidth={2} />
         </Pressable>
       </View>
 
@@ -333,13 +333,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 28, fontWeight: '800', color: theme.colors.textPrimary, letterSpacing: -0.5 },
   languageHeaderButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: theme.colors.goldSoft,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: theme.colors.navy,
   },
   scrollContent: { padding: 24 },

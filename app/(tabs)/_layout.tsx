@@ -9,18 +9,19 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: theme.colors.navy,
         tabBarInactiveTintColor: theme.colors.textTertiary,
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: theme.colors.white,
           borderTopWidth: 1,
           borderTopColor: theme.colors.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 56,
+          paddingBottom: 0,
+          paddingTop: 0,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          fontFamily: theme.fonts.semibold,
+        tabBarItemStyle: {
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 0,
         },
       }}
     >
