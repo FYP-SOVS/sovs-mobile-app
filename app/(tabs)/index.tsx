@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: theme.colors.white,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingTop: 40,
+    paddingBottom: 16,
     paddingHorizontal: 24,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
