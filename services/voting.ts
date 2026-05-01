@@ -15,6 +15,7 @@ interface VotingStatusResult {
   txHash?: string;
   explorerUrl?: string;
   candidateApplicationId?: string;
+  optionId?: string;
   votedAt?: string;
   network?: string;
   error?: string;
@@ -32,7 +33,7 @@ async function getAccessToken(): Promise<string | null> {
  */
 export async function castVote(
   electionId: string,
-  candidateApplicationId: string
+  choice: { candidateApplicationId: string } | { optionId: string }
 ): Promise<CastVoteResult> {
   const token = await getAccessToken();
   if (!token) {
@@ -40,13 +41,18 @@ export async function castVote(
   }
 
   try {
+    const body =
+      'candidateApplicationId' in choice
+        ? { electionId, candidateApplicationId: choice.candidateApplicationId }
+        : { electionId, optionId: choice.optionId };
+
     const response = await fetch(`${FUNCTIONS_BASE_URL}/cast-vote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ electionId, candidateApplicationId }),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();

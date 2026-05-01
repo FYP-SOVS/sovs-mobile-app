@@ -143,6 +143,13 @@ export default function DashboardScreen() {
                   <Clock size={13} color={theme.colors.textTertiary} strokeWidth={2} />
                   <Text style={styles.electionDate}>{formatDate(election.election_date)}</Text>
                 </View>
+                {!!election.election_type && (
+                  <View style={styles.typeBadge}>
+                    <Text style={styles.typeBadgeText}>
+                      {String(election.election_type).replaceAll('_', ' ').toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 {isUpcoming(election.election_date) ? (
                   <View style={styles.upcomingBadge}>
                     <Text style={styles.upcomingBadgeText}>{t('dashboard.upcoming')}</Text>
@@ -339,5 +346,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: theme.colors.textTertiary,
+  },
+  typeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: theme.colors.goldSoft,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: theme.colors.navy,
+  },
+  typeBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: theme.colors.navy,
   },
 });

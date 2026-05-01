@@ -29,6 +29,7 @@ import {
 import { useTranslation } from '@/contexts/LanguageContext';
 import { electionsAPI, candidatesAPI, Election, Candidate } from '@/services/elections';
 import { castVote, getVotingStatus } from '@/services/voting';
+import { electionOptionsAPI, ElectionOption } from '@/services/electionOptions';
 
 type VoteState = 'idle' | 'confirming' | 'submitting' | 'success' | 'error';
 
@@ -37,6 +38,7 @@ interface VotingStatus {
   txHash?: string;
   explorerUrl?: string;
   candidateApplicationId?: string;
+  optionId?: string;
 }
 
 export default function ElectionScreen() {
@@ -45,13 +47,16 @@ export default function ElectionScreen() {
   const { t, language } = useTranslation();
   const [election, setElection] = useState<Election | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [options, setOptions] = useState<ElectionOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   // Voting state
   const [votingStatus, setVotingStatus] = useState<VotingStatus>({ hasVoted: false });
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [selectedOption, setSelectedOption] = useState<ElectionOption | null>(null);
   const [voteState, setVoteState] = useState<VoteState>('idle');
   const [voteError, setVoteError] = useState('');
   const [txHash, setTxHash] = useState('');
@@ -59,17 +64,23 @@ export default function ElectionScreen() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const isElectionOpen = election?.status === 'open';
+  const electionType = election?.election_type ?? 'candidate';
+  const isPollLike = electionType !== 'candidate';
 
   const fetchData = useCallback(async () => {
     if (!id) return;
     try {
       setError('');
-      const [electionData, candidatesData] = await Promise.all([
-        electionsAPI.getById(id),
-        candidatesAPI.listByElection(id),
+      const electionData = await electionsAPI.getById(id);
+      const type = (electionData as any)?.election_type ?? 'candidate';
+
+      const [candidatesData, optionsData] = await Promise.all([
+        type === 'candidate' ? candidatesAPI.listByElection(id) : Promise.resolve([]),
+        type !== 'candidate' ? electionOptionsAPI.listByElection(id) : Promise.resolve([]),
       ]);
       setElection(electionData);
       setCandidates(candidatesData);
+      setOptions(optionsData);
     } catch (e: any) {
       setError(t('election.loadError'));
     } finally {
@@ -86,7 +97,21 @@ export default function ElectionScreen() {
       txHash: status.txHash,
       explorerUrl: status.explorerUrl,
       candidateApplicationId: status.candidateApplicationId,
+      optionId: (status as any).optionId,
     });
+  }, [id]);
+
+  const fetchOptions = useCallback(async () => {
+    if (!id) return;
+    setLoadingOptions(true);
+    try {
+      const data = await electionOptionsAPI.listByElection(id);
+      setOptions(data);
+    } catch {
+      setOptions([]);
+    } finally {
+      setLoadingOptions(false);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -111,18 +136,34 @@ export default function ElectionScreen() {
     );
   };
 
+  const handleSelectOption = (option: ElectionOption) => {
+    if (!isElectionOpen || votingStatus.hasVoted || voteState !== 'idle') return;
+    setSelectedOption(prev => (prev?.option_id === option.option_id ? null : option));
+  };
+
   const handleVotePress = () => {
-    if (!selectedCandidate) return;
+    if (isPollLike) {
+      if (!selectedOption) return;
+    } else {
+      if (!selectedCandidate) return;
+    }
     setShowConfirmModal(true);
     setVoteState('confirming');
   };
 
   const handleConfirmVote = async () => {
-    if (!selectedCandidate || !id) return;
+    if (!id) return;
+    if (isPollLike && !selectedOption) return;
+    if (!isPollLike && !selectedCandidate) return;
     setShowConfirmModal(false);
     setVoteState('submitting');
 
-    const result = await castVote(id, selectedCandidate.application_id);
+    const result = await castVote(
+      id,
+      isPollLike
+        ? { optionId: selectedOption!.option_id }
+        : { candidateApplicationId: selectedCandidate!.application_id }
+    );
 
     if (result.success && result.txHash) {
       setTxHash(result.txHash);
@@ -131,7 +172,8 @@ export default function ElectionScreen() {
         hasVoted: true,
         txHash: result.txHash,
         explorerUrl: result.explorerUrl,
-        candidateApplicationId: selectedCandidate.application_id,
+        candidateApplicationId: isPollLike ? undefined : selectedCandidate!.application_id,
+        optionId: isPollLike ? selectedOption!.option_id : undefined,
       });
       setVoteState('success');
     } else {
@@ -162,6 +204,14 @@ export default function ElectionScreen() {
       month: 'long',
       day: 'numeric',
     });
+
+  useEffect(() => {
+    if (!election) return;
+    const type = (election as any).election_type ?? 'candidate';
+    if (type !== 'candidate' && options.length === 0 && !loadingOptions) {
+      fetchOptions();
+    }
+  }, [election, options.length, loadingOptions, fetchOptions]);
 
   if (loading) {
     return (
@@ -271,7 +321,9 @@ export default function ElectionScreen() {
             <Text style={styles.successTitle}>{t('election.voteSuccess')}</Text>
             <Text style={styles.successSub}>
               {t('election.voteSuccessMessage', {
-                name: `${selectedCandidate?.name ?? ''} ${selectedCandidate?.surname ?? ''}`.trim(),
+                name: isPollLike
+                  ? `${selectedOption?.label ?? ''}`.trim()
+                  : `${selectedCandidate?.name ?? ''} ${selectedCandidate?.surname ?? ''}`.trim(),
               })}
             </Text>
             <View style={styles.txHashBox}>
@@ -309,69 +361,133 @@ export default function ElectionScreen() {
           </View>
         )}
 
-        {/* Candidates Section */}
+        {/* Ballot Section */}
         <View style={styles.candidatesSection}>
           <View style={styles.candidatesHeader}>
             <Users size={18} color={theme.colors.navy} strokeWidth={2} />
             <Text style={styles.sectionTitle}>
-              {t('election.candidates')}{candidates.length > 0 ? ` (${candidates.length})` : ''}
+              {isPollLike ? (electionType === 'referendum' ? 'Referendum' : 'Poll') : t('election.candidates')}
+              {isPollLike
+                ? (options.length > 0 ? ` (${options.length})` : '')
+                : (candidates.length > 0 ? ` (${candidates.length})` : '')}
             </Text>
           </View>
+
           {isElectionOpen && !votingStatus.hasVoted && voteState === 'idle' && (
-            <Text style={styles.selectHint}>{t('election.selectHint')}</Text>
+            <Text style={styles.selectHint}>
+              {isPollLike ? 'Select one option.' : t('election.selectHint')}
+            </Text>
           )}
 
-          {candidates.length === 0 ? (
+          {!isPollLike ? (
+            candidates.length === 0 ? (
+              <View style={styles.emptyCard}>
+                <User size={36} color={theme.colors.borderStrong} strokeWidth={1.5} />
+                <Text style={styles.emptyTitle}>{t('election.noCandidates')}</Text>
+                <Text style={styles.emptySubtitle}>{t('election.noCandidatesSubtitle')}</Text>
+              </View>
+            ) : (
+              candidates.map((candidate) => {
+                const isSelected = selectedCandidate?.application_id === candidate.application_id;
+                const isVotedFor = votingStatus.candidateApplicationId === candidate.application_id;
+                const canSelect =
+                  isElectionOpen && !votingStatus.hasVoted && voteState === 'idle';
+
+                return (
+                  <Pressable
+                    key={candidate.application_id}
+                    style={[
+                      styles.candidateCard,
+                      isSelected && styles.candidateCardSelected,
+                      isVotedFor && styles.candidateCardVoted,
+                    ]}
+                    onPress={() => {
+                      if (canSelect) {
+                        handleSelectCandidate(candidate);
+                      } else {
+                        router.push({
+                          pathname: '/candidate/[id]',
+                          params: { id: candidate.application_id },
+                        } as any);
+                      }
+                    }}
+                  >
+                    {/* Selection radio */}
+                    {canSelect && (
+                      <View style={[styles.radio, isSelected && styles.radioSelected]}>
+                        {isSelected && <View style={styles.radioDot} />}
+                      </View>
+                    )}
+
+                    <View style={[styles.candidateAvatar, isSelected && styles.candidateAvatarSelected]}>
+                      <Text style={styles.candidateInitials}>
+                        {(candidate.name?.[0] ?? '?').toUpperCase()}
+                        {(candidate.surname?.[0] ?? '').toUpperCase()}
+                      </Text>
+                    </View>
+
+                    <View style={styles.candidateInfo}>
+                      <View style={styles.candidateNameRow}>
+                        <Text style={styles.candidateName}>
+                          {candidate.name} {candidate.surname}
+                        </Text>
+                        {isVotedFor && (
+                          <View style={styles.yourVoteBadge}>
+                            <CheckCircle size={11} color={theme.colors.success} strokeWidth={2.5} />
+                            <Text style={styles.yourVoteText}>{t('election.yourVote')}</Text>
+                          </View>
+                        )}
+                      </View>
+                      {candidate.manifesto ? (
+                        <Text style={styles.manifestoAvailable}>{t('election.manifestoAvailable')}</Text>
+                      ) : (
+                        <Text style={styles.manifestoUnavailable}>{t('election.noManifesto')}</Text>
+                      )}
+                    </View>
+
+                    {!canSelect && <ChevronRight size={20} color={theme.colors.borderStrong} strokeWidth={2} />}
+                  </Pressable>
+                );
+              })
+            )
+          ) : loadingOptions ? (
+            <View style={styles.centered}>
+              <ActivityIndicator size="small" color={theme.colors.navy} />
+              <Text style={styles.loadingText}>Loading options…</Text>
+            </View>
+          ) : options.length === 0 ? (
             <View style={styles.emptyCard}>
               <User size={36} color={theme.colors.borderStrong} strokeWidth={1.5} />
-              <Text style={styles.emptyTitle}>{t('election.noCandidates')}</Text>
-              <Text style={styles.emptySubtitle}>{t('election.noCandidatesSubtitle')}</Text>
+              <Text style={styles.emptyTitle}>No options available</Text>
+              <Text style={styles.emptySubtitle}>This ballot has no options configured.</Text>
             </View>
           ) : (
-            candidates.map((candidate) => {
-              const isSelected = selectedCandidate?.application_id === candidate.application_id;
-              const isVotedFor = votingStatus.candidateApplicationId === candidate.application_id;
-              const canSelect =
-                isElectionOpen && !votingStatus.hasVoted && voteState === 'idle';
+            options.map((opt) => {
+              const isSelected = selectedOption?.option_id === opt.option_id;
+              const isVotedFor = votingStatus.optionId === opt.option_id;
+              const canSelect = isElectionOpen && !votingStatus.hasVoted && voteState === 'idle';
 
               return (
                 <Pressable
-                  key={candidate.application_id}
+                  key={opt.option_id}
                   style={[
                     styles.candidateCard,
                     isSelected && styles.candidateCardSelected,
                     isVotedFor && styles.candidateCardVoted,
                   ]}
                   onPress={() => {
-                    if (canSelect) {
-                      handleSelectCandidate(candidate);
-                    } else {
-                      router.push({
-                        pathname: '/candidate/[id]',
-                        params: { id: candidate.application_id },
-                      } as any);
-                    }
+                    if (canSelect) handleSelectOption(opt);
                   }}
                 >
-                  {/* Selection radio */}
                   {canSelect && (
                     <View style={[styles.radio, isSelected && styles.radioSelected]}>
                       {isSelected && <View style={styles.radioDot} />}
                     </View>
                   )}
 
-                  <View style={[styles.candidateAvatar, isSelected && styles.candidateAvatarSelected]}>
-                    <Text style={styles.candidateInitials}>
-                      {(candidate.name?.[0] ?? '?').toUpperCase()}
-                      {(candidate.surname?.[0] ?? '').toUpperCase()}
-                    </Text>
-                  </View>
-
                   <View style={styles.candidateInfo}>
                     <View style={styles.candidateNameRow}>
-                      <Text style={styles.candidateName}>
-                        {candidate.name} {candidate.surname}
-                      </Text>
+                      <Text style={styles.candidateName}>{opt.label}</Text>
                       {isVotedFor && (
                         <View style={styles.yourVoteBadge}>
                           <CheckCircle size={11} color={theme.colors.success} strokeWidth={2.5} />
@@ -379,14 +495,9 @@ export default function ElectionScreen() {
                         </View>
                       )}
                     </View>
-                    {candidate.manifesto ? (
-                      <Text style={styles.manifestoAvailable}>{t('election.manifestoAvailable')}</Text>
-                    ) : (
-                      <Text style={styles.manifestoUnavailable}>{t('election.noManifesto')}</Text>
-                    )}
                   </View>
 
-                  {!canSelect && <ChevronRight size={20} color={theme.colors.borderStrong} strokeWidth={2} />}
+                  <ChevronRight size={20} color={theme.colors.borderStrong} strokeWidth={2} />
                 </Pressable>
               );
             })
@@ -407,16 +518,21 @@ export default function ElectionScreen() {
             <Pressable
               style={[
                 styles.voteButton,
-                !selectedCandidate && styles.voteButtonDisabled,
+                ((isPollLike && !selectedOption) || (!isPollLike && !selectedCandidate)) && styles.voteButtonDisabled,
               ]}
-              disabled={!selectedCandidate || voteState === 'submitting'}
+              disabled={
+                voteState === 'submitting' ||
+                (isPollLike ? !selectedOption : !selectedCandidate)
+              }
               onPress={handleVotePress}
             >
               <Vote size={20} color={theme.colors.white} strokeWidth={2} />
               <Text style={styles.voteButtonText}>
-                {selectedCandidate
-                  ? t('election.voteFor', { name: `${selectedCandidate.name} ${selectedCandidate.surname}` })
-                  : t('election.selectCandidate')}
+                {isPollLike
+                  ? (selectedOption ? `Vote: ${selectedOption.label}` : 'Select an option')
+                  : (selectedCandidate
+                    ? t('election.voteFor', { name: `${selectedCandidate.name} ${selectedCandidate.surname}` })
+                    : t('election.selectCandidate'))}
               </Text>
             </Pressable>
           </View>
@@ -437,10 +553,19 @@ export default function ElectionScreen() {
             </View>
             <Text style={styles.modalTitle}>{t('election.confirmVote')}</Text>
             <Text style={styles.modalBody}>
-              {t('election.aboutToVoteFor')}{'\n'}
-              <Text style={styles.modalCandidateName}>
-                {selectedCandidate?.name} {selectedCandidate?.surname}
-              </Text>
+              {isPollLike ? (
+                <>
+                  You are about to vote for:{'\n'}
+                  <Text style={styles.modalCandidateName}>{selectedOption?.label}</Text>
+                </>
+              ) : (
+                <>
+                  {t('election.aboutToVoteFor')}{'\n'}
+                  <Text style={styles.modalCandidateName}>
+                    {selectedCandidate?.name} {selectedCandidate?.surname}
+                  </Text>
+                </>
+              )}
             </Text>
             <Text style={styles.modalWarning}>
               {t('election.voteWarning')}

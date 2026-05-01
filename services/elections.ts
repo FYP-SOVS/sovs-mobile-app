@@ -5,6 +5,9 @@ export interface Election {
   title: string;
   description: string;
   election_date: string;
+  voting_end?: string | null;
+  registration_deadline?: string | null;
+  election_type?: 'candidate' | 'poll' | 'referendum' | string;
   status?: 'open' | 'upcoming' | 'closed' | 'completed';
   candidate_count?: number;
 }
