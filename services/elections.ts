@@ -8,7 +8,7 @@ export interface Election {
   voting_end?: string | null;
   registration_deadline?: string | null;
   election_type?: 'candidate' | 'poll' | 'referendum' | string;
-  status?: 'open' | 'upcoming' | 'closed' | 'completed';
+  status?: 'upcoming' | 'ongoing' | 'completed';
   candidate_count?: number;
 }
 

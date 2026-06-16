@@ -28,7 +28,7 @@ export default function DashboardScreen() {
   const fetchElections = useCallback(async () => {
     try {
       setError('');
-      const data = await electionsAPI.list(false); // fetch all elections
+      const data = await electionsAPI.list(false);
       setElections(data);
     } catch (e: any) {
       setError(t('dashboard.loadElectionsError'));
@@ -49,7 +49,6 @@ export default function DashboardScreen() {
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
-
     setIsLoggingOut(true);
     try {
       await Promise.allSettled([
@@ -72,7 +71,60 @@ export default function DashboardScreen() {
     });
   };
 
-  const isUpcoming = (dateStr: string) => new Date(dateStr) >= new Date();
+  const ongoingElections  = elections.filter(e => e.status === 'ongoing');
+  const upcomingElections = elections.filter(e => e.status === 'upcoming');
+  const pastElections     = elections.filter(e => e.status === 'completed');
+
+  const renderElectionCard = (election: Election) => (
+    <Pressable
+      key={election.election_id}
+      style={styles.electionCard}
+      onPress={() => router.push({
+        pathname: '/election/[id]',
+        params: { id: election.election_id },
+      } as any)}
+    >
+      <View style={[
+        styles.electionIconWrapper,
+        election.status === 'ongoing' && styles.electionIconWrapperOngoing,
+        election.status === 'completed' && styles.electionIconWrapperPast,
+      ]}>
+        <Calendar size={22} color={theme.colors.navy} strokeWidth={2} />
+      </View>
+      <View style={styles.electionContent}>
+        <Text style={styles.electionTitle} numberOfLines={2}>{election.title}</Text>
+        <View style={styles.electionMeta}>
+          <Clock size={13} color={theme.colors.textTertiary} strokeWidth={2} />
+          <Text style={styles.electionDate}>{formatDate(election.election_date)}</Text>
+        </View>
+        {!!election.election_type && (
+          <View style={styles.typeBadge}>
+            <Text style={styles.typeBadgeText}>
+              {String(election.election_type).replaceAll('_', ' ').toUpperCase()}
+            </Text>
+          </View>
+        )}
+      </View>
+      <ChevronRight size={20} color={theme.colors.borderStrong} strokeWidth={2} />
+    </Pressable>
+  );
+
+  const renderSection = (
+    label: string,
+    items: Election[],
+    badge: React.ReactNode,
+  ) => {
+    if (items.length === 0) return null;
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          {badge}
+          <Text style={styles.sectionLabel}>{label}</Text>
+        </View>
+        {items.map(renderElectionCard)}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -106,7 +158,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.colors.navy} />}
       >
-        <Text style={styles.sectionTitle}>{t('dashboard.elections')}</Text>
+        <Text style={styles.pageTitle}>{t('dashboard.elections')}</Text>
 
         {loading ? (
           <View style={styles.centered}>
@@ -125,44 +177,23 @@ export default function DashboardScreen() {
             <Text style={styles.emptySubtitle}>{t('dashboard.electionsWillAppear')}</Text>
           </View>
         ) : (
-          elections.map((election) => (
-            <Pressable
-              key={election.election_id}
-              style={styles.electionCard}
-              onPress={() => router.push({
-                pathname: '/election/[id]',
-                params: { id: election.election_id },
-              } as any)}
-            >
-              <View style={styles.electionIconWrapper}>
-                <Calendar size={22} color={theme.colors.navy} strokeWidth={2} />
-              </View>
-              <View style={styles.electionContent}>
-                <Text style={styles.electionTitle} numberOfLines={2}>{election.title}</Text>
-                <View style={styles.electionMeta}>
-                  <Clock size={13} color={theme.colors.textTertiary} strokeWidth={2} />
-                  <Text style={styles.electionDate}>{formatDate(election.election_date)}</Text>
-                </View>
-                {!!election.election_type && (
-                  <View style={styles.typeBadge}>
-                    <Text style={styles.typeBadgeText}>
-                      {String(election.election_type).replaceAll('_', ' ').toUpperCase()}
-                    </Text>
-                  </View>
-                )}
-                {isUpcoming(election.election_date) ? (
-                  <View style={styles.upcomingBadge}>
-                    <Text style={styles.upcomingBadgeText}>{t('dashboard.upcoming')}</Text>
-                  </View>
-                ) : (
-                  <View style={styles.pastBadge}>
-                    <Text style={styles.pastBadgeText}>{t('dashboard.past')}</Text>
-                  </View>
-                )}
-              </View>
-              <ChevronRight size={20} color={theme.colors.borderStrong} strokeWidth={2} />
-            </Pressable>
-          ))
+          <>
+            {renderSection(
+              t('dashboard.ongoing'),
+              ongoingElections,
+              <View style={styles.ongoingDot} />,
+            )}
+            {renderSection(
+              t('dashboard.upcoming'),
+              upcomingElections,
+              <Calendar size={15} color={theme.colors.success} strokeWidth={2.5} />,
+            )}
+            {renderSection(
+              t('dashboard.past'),
+              pastElections,
+              <Clock size={15} color={theme.colors.textTertiary} strokeWidth={2.5} />,
+            )}
+          </>
         )}
       </ScrollView>
     </View>
@@ -226,11 +257,33 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
   },
-  sectionTitle: {
+  pageTitle: {
     fontSize: 22,
     fontWeight: '700',
     color: theme.colors.textPrimary,
-    marginBottom: 16,
+    marginBottom: 20,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  ongoingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#f59e0b',
   },
   centered: {
     alignItems: 'center',
@@ -300,6 +353,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexShrink: 0,
   },
+  electionIconWrapperOngoing: {
+    backgroundColor: '#fef3c7',
+  },
+  electionIconWrapperPast: {
+    backgroundColor: theme.colors.surfaceMuted,
+  },
   electionContent: {
     flex: 1,
     gap: 4,
@@ -317,34 +376,6 @@ const styles = StyleSheet.create({
   },
   electionDate: {
     fontSize: 13,
-    color: theme.colors.textTertiary,
-  },
-  upcomingBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: theme.colors.successSoft,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: theme.colors.success,
-  },
-  upcomingBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: theme.colors.success,
-  },
-  pastBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: theme.colors.borderStrong,
-  },
-  pastBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
     color: theme.colors.textTertiary,
   },
   typeBadge: {
