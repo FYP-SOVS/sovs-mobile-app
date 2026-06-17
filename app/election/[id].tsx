@@ -25,6 +25,7 @@ import {
   ExternalLink,
   Vote,
   CheckCircle,
+  FileText,
 } from 'lucide-react-native';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { electionsAPI, candidatesAPI, Election, Candidate } from '@/services/elections';
@@ -439,7 +440,19 @@ export default function ElectionScreen() {
                         )}
                       </View>
                       {candidate.manifesto ? (
-                        <Text style={styles.manifestoAvailable}>{t('election.manifestoAvailable')}</Text>
+                        <Pressable
+                          onPress={() => {
+                            Linking.openURL(candidate.manifesto!).catch(() =>
+                              Alert.alert(t('common.error'), t('candidate.openManifestoError'))
+                            );
+                          }}
+                          hitSlop={8}
+                          style={styles.manifestoLink}
+                        >
+                          <FileText size={12} color={theme.colors.success} strokeWidth={2} />
+                          <Text style={styles.manifestoAvailable}>{t('election.manifestoAvailable')}</Text>
+                          <ExternalLink size={11} color={theme.colors.success} strokeWidth={2} />
+                        </Pressable>
                       ) : (
                         <Text style={styles.manifestoUnavailable}>{t('election.noManifesto')}</Text>
                       )}
@@ -750,6 +763,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7, paddingVertical: 2,
   },
   yourVoteText: { fontSize: 11, fontWeight: '700', color: theme.colors.success },
+  manifestoLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   manifestoAvailable: { fontSize: 13, color: theme.colors.success, fontWeight: '500' },
   manifestoUnavailable: { fontSize: 13, color: theme.colors.textPlaceholder },
 
