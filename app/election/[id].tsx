@@ -63,7 +63,7 @@ export default function ElectionScreen() {
   const [explorerUrl, setExplorerUrl] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const isElectionOpen = election?.status === 'open';
+  const isElectionOpen = election?.status === 'ongoing';
   const electionType = election?.election_type ?? 'candidate';
   const isPollLike = electionType !== 'candidate';
 
